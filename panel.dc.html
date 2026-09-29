@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<script src="firebase-config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FAF5EC;color:#1F1B16;font-family:'Geist',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#1F1B16;text-decoration:none}a:hover{color:#E8641C}
+input,textarea,button{font-family:inherit;color:inherit}
+input:focus,textarea:focus{outline:none}
+::selection{background:#F6CDB9}
+</style>
+</helmet>
+<sc-if value="{{ locked }}" hint-placeholder-val="{{ false }}">
+<div style="min-height:100vh;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));background:#FAF5EC">
+  <div style="background:#211E1A;color:#FAF5EC;display:flex;flex-direction:column;justify-content:space-between;gap:40px;padding:56px">
+    <img src="assets/bikutulogo.png" alt="Bi’ Kutu Oyun" style="height:44px;width:auto;align-self:flex-start"></img>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:clamp(40px,5vw,64px);line-height:1;letter-spacing:-0.02em;text-wrap:pretty">Oyunun mutfağına hoş geldin.</span>
+      <span style="font-size:16px;color:#B9B2A4;max-width:420px;line-height:1.55">Projeler, takvim, fikirler ve toplantılar tek masada. Devam etmek için giriş yap.</span>
+    </div>
+    <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.12em;color:#8C8577">MİNİK AKADEMİ A.Ş.</span>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center;padding:48px 24px">
+    <div style="width:min(380px,100%);display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;align-items:center;gap:12px;color:#E8641C"><span style="display:flex;flex-direction:column;align-items:center;pointer-events:none"><span style="width:8px;height:6px;border:2px solid currentColor;border-bottom:none;border-radius:5px 5px 0 0"></span><span style="width:12px;height:9px;border-radius:2px;background:currentColor"></span></span><span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;font-weight:600">Giriş</span></div>
+      <h2 style="margin:0 0 6px;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:40px;line-height:1">Kim geliyor?</h2>
+      <div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Kullanıcı adı</span><input value="{{ loginU }}" onChange="{{ onLoginU }}" onKeyDown="{{ loginKey }}" autocomplete="username" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-size:15px;padding:14px 16px;width:100%"></input></div>
+      <div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Şifre</span><input type="password" value="{{ loginP }}" onChange="{{ onLoginP }}" onKeyDown="{{ loginKey }}" autocomplete="current-password" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-size:15px;padding:14px 16px;width:100%"></input></div>
+      <sc-if value="{{ loginErr }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#B2431D">{{ loginErr }}</span></sc-if>
+      <button onClick="{{ doLogin }}" style="margin-top:6px;border:none;cursor:pointer;background:#211E1A;color:#FAF5EC;padding:16px;border-radius:999px;font-size:15px;font-weight:500" style-hover="background:#E8641C">{{ loginBtn }}</button>
+      <span style="font-size:12px;color:#9E978A;text-align:center;line-height:1.5">{{ modeNote }}</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:{{ sideW }} minmax(0,1fr);min-height:100vh;background:#FAF5EC;transition:grid-template-columns .25s ease">
+
+<aside style="position:sticky;top:0;height:100vh;background:#211E1A;color:#FAF5EC;display:flex;flex-direction:column;padding:22px 14px 18px;overflow:hidden">
+  <div style="display:flex;flex-direction:column;gap:8px;padding:6px 6px 28px;min-height:84px;flex-shrink:0">
+    <div title="Bi’ Kutu Oyun" style="width:{{ logoW }};height:{{ logoBoxH }};flex-shrink:0;overflow:hidden;transition:width .25s,height .25s">
+      <img src="assets/bikutulogo.png" alt="Bi’ Kutu Oyun" style="height:{{ logoH }};width:auto;display:block;max-width:none;margin-left:{{ logoML }};margin-top:{{ logoMT }};transition:all .25s"></img>
+    </div>
+    <sc-if value="{{ sideOpen }}" hint-placeholder-val="{{ true }}">
+      <span style="font-size:12.5px;color:#B9B2A4;white-space:nowrap">Oyunun mutfağı burası.</span>
+    </sc-if>
+  </div>
+  <button onClick="{{ toggleSide }}" title="Menüyü aç/kapat" style="position:absolute;top:{{ toggleTop }};right:{{ toggleRight }};width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:#F28A1E;color:#211E1A;font-weight:800;font-size:15px;display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.25);z-index:2">{{ toggleIcon }}</button>
+  <sc-if value="{{ sideOpen }}" hint-placeholder-val="{{ true }}">
+    <div style="font-size:10px;letter-spacing:0.16em;color:#8C8577;text-transform:uppercase;font-weight:600;padding:0 10px 10px">Çalışma Alanı</div>
+  </sc-if>
+  <nav style="display:flex;flex-direction:column;gap:4px;flex:1;min-height:0;overflow-y:auto;scrollbar-width:none">
+    <sc-for list="{{ nav }}" as="n" hint-placeholder-count="4">
+      <div style="display:flex;align-items:center;gap:4px;border-radius:14px;background:{{ n.bg }};transition:background .15s" style-hover="background:#302C26">
+        <button onClick="{{ n.onClick }}" title="{{ n.label }}" style="flex:1;min-width:0;display:flex;align-items:center;gap:12px;border:none;cursor:pointer;text-align:left;padding:11px 10px;background:transparent;color:{{ n.color }};font-size:{{ n.size }};font-weight:600">
+          <span style="width:30px;height:30px;flex-shrink:0;display:grid;place-items:center"><span style="width:10px;height:10px;border-radius:{{ n.shape }};background:{{ n.dot }}"></span></span>
+          <sc-if value="{{ sideOpen }}" hint-placeholder-val="{{ true }}">
+            <span style="flex:1;white-space:nowrap">{{ n.label }}</span>
+            <span style="font-size:11px;font-weight:500;color:{{ n.countColor }}">{{ n.count }}</span>
+          </sc-if>
+        </button>
+        <sc-if value="{{ n.hasSub }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ toggleProj }}" title="Projeleri aç/kapat" style="width:28px;height:28px;margin-right:6px;flex-shrink:0;border:none;border-radius:8px;cursor:pointer;background:rgba(255,255,255,.12);color:#FAF5EC;font-size:15px;line-height:1;transform:rotate({{ projRot }});transition:transform .2s">▾</button>
+        </sc-if>
+      </div>
+      <sc-if value="{{ n.showSub }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:1px;padding:4px 0 10px 18px;margin-left:24px;border-left:2px dotted #4A443B">
+          <sc-for list="{{ navProjects }}" as="sp" hint-placeholder-count="3">
+            <button onClick="{{ sp.onClick }}" style="display:flex;align-items:center;gap:9px;border:none;background:transparent;cursor:pointer;text-align:left;padding:6px 8px 6px 0;font-size:13px;color:{{ sp.color }}" style-hover="color:#FFFFFF">
+              <span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:{{ sp.dot }}"></span>
+              <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ sp.name }}</span>
+              <span style="font-size:10px;color:#8C8577">{{ sp.pct }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+    </sc-for>
+  </nav>
+  <div style="margin-top:auto;flex-shrink:0;display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 4px 0;border-top:1px solid #35302A">
+    <div style="width:34px;height:34px;flex-shrink:0;border-radius:50%;background:#F28A1E;color:#211E1A;display:grid;place-items:center;font-weight:700;font-size:13px">{{ userIni }}</div>
+    <sc-if value="{{ sideOpen }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:2px;white-space:nowrap;flex:1;min-width:0">
+        <span style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis">{{ userName }}</span>
+        <div style="display:flex;gap:6px;align-items:center;font-size:11px;color:#8C8577"><span>{{ userRole }}</span><span>·</span><button onClick="{{ logout }}" style="border:none;background:transparent;padding:0;cursor:pointer;font-size:11px;color:#B9B2A4" style-hover="color:#FFFFFF">Çıkış</button></div>
+      </div>
+    </sc-if>
+    <div style="display:flex;gap:6px">
+      <button onClick="{{ onLock }}" title="{{ lockTitle }}" style="width:30px;height:30px;border-radius:9px;border:1px solid #4A443B;background:{{ lockBg }};color:{{ lockColor }};cursor:pointer;display:grid;place-items:center;padding:0" style-hover="border-color:#F28A1E"><span style="display:flex;flex-direction:column;align-items:center;pointer-events:none"><span style="width:8px;height:6px;border:2px solid currentColor;border-bottom:none;border-radius:5px 5px 0 0"></span><span style="width:12px;height:9px;border-radius:2px;background:currentColor"></span></span></button>
+      <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ openSettings }}" title="Kullanıcılar ve ayarlar" style="width:30px;height:30px;border-radius:9px;border:1px solid #4A443B;background:transparent;color:#F2A516;cursor:pointer;display:grid;place-items:center;padding:0;font-size:16px;line-height:1" style-hover="border-color:#F2A516">⚙︎</button>
+      </sc-if>
+    </div>
+  </div>
+</aside>
+
+<main style="min-width:0;padding:44px 56px 80px">
+
+<sc-if value="{{ isProjects }}" hint-placeholder-val="{{ true }}">
+  <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid #ECE2D0;margin-bottom:32px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#E0671A;text-transform:uppercase;font-weight:600">01 — Projeler</span>
+      <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:68px;line-height:0.95;letter-spacing:-0.02em">Masadaki işler</h1>
+      <span style="font-size:16px;color:#756F64">Her kutuda bir oyun, her oyunda bir hikâye.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:28px;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Genel ilerleme</span>
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:40px;line-height:1">{{ overallPct }}</span>
+      </div>
+      <button onClick="{{ addProject }}" style="border:none;cursor:pointer;background:#211E1A;color:#FAF5EC;padding:14px 22px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap" style-hover="background:#E8641C">+ Yeni proje</button>
+    </div>
+  </header>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px">
+    <sc-for list="{{ projectCards }}" as="p" hint-placeholder-count="6">
+      <button onClick="{{ p.onClick }}" style="position:relative;display:flex;flex-direction:column;text-align:left;overflow:hidden;border:1px solid #ECE2D0;background:#FFFFFF;border-radius:18px;padding:28px 26px 22px;cursor:pointer;min-height:250px;transition:transform .2s,box-shadow .2s,border-color .2s" style-hover="transform:translateY(-3px);box-shadow:0 18px 40px -22px rgba(27,25,21,.35);border-color:#DCCFB8">
+        <span style="position:absolute;top:0;left:0;right:0;height:4px;background:{{ p.color }}"></span>
+                <div style="position:relative;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.1em;color:#756F64">{{ p.code }}</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;padding:5px 9px;border-radius:999px;background:{{ p.tagBg }};color:{{ p.tagColor }}">{{ p.tag }}</span>
+        </div>
+        <h3 style="margin:22px 0 6px;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:36px;line-height:1.02;letter-spacing:-0.01em;text-wrap:pretty">{{ p.name }}</h3>
+        <span style="font-size:13px;color:#756F64">{{ p.sub }}</span>
+        <div style="margin-top:auto;padding-top:28px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Açılış</span>
+            <span style="font-size:14px;font-weight:500">{{ p.opened }}</span>
+          </div>
+          <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:56px;line-height:0.85;letter-spacing:-0.03em;color:#1F1B16">{{ p.pct }}<span style="font-size:26px;color:#756F64">%</span></span>
+        </div>
+        <div style="margin-top:16px;height:5px;border-radius:5px;background:#EEE6D8;overflow:hidden">
+          <div style="height:100%;width:{{ p.barW }};background:{{ p.color }};border-radius:8px"></div>
+        </div>
+      </button>
+    </sc-for>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isProject }}" hint-placeholder-val="{{ false }}">
+  <button onClick="{{ pd.back }}" style="border:none;background:transparent;cursor:pointer;padding:0;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase" style-hover="color:#E8641C">{{ pd.backLabel }}</button>
+  <header style="display:flex;flex-wrap:wrap;gap:20px 32px;align-items:flex-end;padding:18px 0 26px;border-bottom:1px solid #ECE2D0">
+    <input value="{{ pd.name }}" onChange="{{ pd.onName }}" style="flex:1 1 420px;min-width:0;width:100%;border:none;background:transparent;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:clamp(44px,6vw,76px);line-height:1;letter-spacing:-0.02em;padding:0"></input>
+    <div style="display:flex;gap:36px">
+      <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Açılış</span><span style="font-size:15px;font-weight:500">{{ pd.opened }}</span></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">İş</span><span style="font-size:15px;font-weight:500">{{ pd.taskStat }}</span></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">İlerleme</span><span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:40px;line-height:0.9">{{ pd.pct }}%</span></div>
+    </div>
+  </header>
+  <div style="display:flex;gap:4px;height:10px;margin:0 0 36px;border-radius:10px;overflow:hidden">
+    <sc-for list="{{ stageBars }}" as="sb" hint-placeholder-count="5">
+      <div style="flex:{{ sb.flex }};background:#EEE6D8;overflow:hidden"><div style="height:100%;width:{{ sb.w }};background:{{ sb.color }}"></div></div>
+    </sc-for>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:6px;flex:1 1 260px;max-width:320px;min-width:min(100%,240px)">
+      <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#756F64;text-transform:uppercase;padding:0 4px 8px">Aşamalar</span>
+      <sc-for list="{{ stages }}" as="s" hint-placeholder-count="5">
+        <button onClick="{{ s.onClick }}" style="display:flex;flex-direction:column;gap:10px;text-align:left;border:1px solid {{ s.border }};cursor:pointer;padding:14px 16px;border-radius:12px;background:{{ s.bg }};color:{{ s.color }};transition:background .15s">
+          <div style="display:flex;align-items:baseline;gap:10px;width:100%">
+            <span style="font-family:'Geist Mono',monospace;font-size:10px;opacity:.6">{{ s.num }}</span>
+            <span style="flex:1;font-size:15px;font-weight:500;line-height:1.3">{{ s.name }}</span>
+            <span style="font-family:'Geist Mono',monospace;font-size:11px;opacity:.7">{{ s.stat }}</span>
+          </div>
+          <div style="height:2px;background:{{ s.track }};width:100%"><div style="height:100%;width:{{ s.w }};background:{{ s.fill }}"></div></div>
+        </button>
+      </sc-for>
+      <div style="display:flex;gap:6px;margin-top:8px;padding:6px;border:1px dashed #DCCFB8;border-radius:12px">
+        <input value="{{ newStage }}" onChange="{{ onNewStage }}" onKeyDown="{{ stageKey }}" placeholder="Yeni aşama başlığı" style="flex:1;min-width:0;border:none;background:transparent;font-size:14px;padding:8px 10px"></input>
+        <button onClick="{{ addStage }}" style="border:none;cursor:pointer;background:#1F1B16;color:#FAF5EC;border-radius:8px;padding:0 14px;font-size:13px" style-hover="background:#E8641C">Ekle</button>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;min-width:min(100%,380px);flex:1 1 380px">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:6px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#756F64;text-transform:uppercase">{{ stageEyebrow }}</span>
+          <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:44px;line-height:1">{{ stageName }}</h2>
+        </div>
+        <button onClick="{{ addTask }}" style="border:1px solid #1F1B16;cursor:pointer;background:transparent;padding:11px 18px;border-radius:999px;font-size:13px;font-weight:500;white-space:nowrap;flex-shrink:0" style-hover="background:#1F1B16;color:#FAF5EC">+ İş ekle</button>
+      </div>
+      <sc-if value="{{ noTasks }}" hint-placeholder-val="{{ false }}">
+        <div style="border:1px dashed #DCCFB8;border-radius:16px;padding:48px;text-align:center;color:#756F64;font-size:14px">Bu aşamada henüz iş yok. “+ İş ekle” ile başlayın.</div>
+      </sc-if>
+      <sc-for list="{{ tasks }}" as="t" hint-placeholder-count="4">
+        <button onClick="{{ t.onClick }}" style="display:flex;flex-direction:column;gap:14px;text-align:left;cursor:pointer;border:1px solid #ECE2D0;background:#FFFFFF;border-radius:16px;padding:22px 24px;transition:border-color .15s,box-shadow .2s" style-hover="border-color:#1F1B16;box-shadow:0 12px 30px -20px rgba(27,25,21,.4)">
+          <div style="display:flex;align-items:flex-start;gap:10px 14px;width:100%;flex-wrap:wrap">
+            <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#9A9385;padding-top:8px">{{ t.num }}</span>
+            <div style="flex:1 1 220px;display:flex;flex-direction:column;gap:6px;min-width:0">
+              <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:28px;line-height:1.1;text-decoration:{{ t.deco }};text-decoration-color:#B8B0A0">{{ t.title }}</span>
+              <span style="font-size:14px;line-height:1.55;color:#5E584E;text-wrap:pretty">{{ t.desc }}</span>
+            </div>
+            <span style="flex-shrink:0;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;padding:6px 10px;border-radius:999px;background:{{ t.sBg }};color:{{ t.sColor }}">{{ t.sLabel }}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;padding:14px 0 0 28px;border-top:1px solid #F1EADD;width:100%">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0">
+              <span style="width:24px;height:24px;flex-shrink:0;border-radius:50%;background:#1F1B16;color:#FAF5EC;display:grid;place-items:center;font-size:10px;font-weight:600">{{ t.ini }}</span>
+              <span style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.owner }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px"><span style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:0.14em;color:#9A9385;text-transform:uppercase">Açıldı</span><span style="font-size:13px">{{ t.opened }}</span></div>
+            <div style="display:flex;flex-direction:column;gap:2px"><span style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:0.14em;color:#9A9385;text-transform:uppercase">Hedef</span><span style="font-size:13px">{{ t.due }}</span></div>
+            <div style="display:flex;flex-direction:column;gap:2px"><span style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:0.14em;color:#9A9385;text-transform:uppercase">Kapandı</span><span style="font-size:13px">{{ t.closed }}</span></div>
+          </div>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isProducts }}" hint-placeholder-val="{{ false }}">
+  <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid #ECE2D0;margin-bottom:32px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#E0671A;text-transform:uppercase;font-weight:600">02 — Ürünler &amp; Takvim</span>
+      <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:68px;line-height:0.95;letter-spacing:-0.02em">Yayın takvimi <span style="font-style:italic;color:#756F64">2026</span></h1>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button onClick="{{ addColumn }}" style="border:1px solid #1F1B16;cursor:pointer;background:transparent;padding:13px 20px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap" style-hover="background:#1F1B16;color:#FAF5EC">+ Sütun</button>
+      <button onClick="{{ addRow }}" style="border:none;cursor:pointer;background:#211E1A;color:#FAF5EC;padding:14px 22px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap" style-hover="background:#E8641C">+ Ürün</button>
+    </div>
+  </header>
+
+  <div style="border:1px solid #ECE2D0;background:#FFFFFF;border-radius:18px;overflow-x:auto">
+    <div style="min-width:860px">
+      <div style="display:grid;grid-template-columns:{{ gridCols }};border-bottom:1px solid #1F1B16">
+        <div style="padding:16px 22px;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#756F64;text-transform:uppercase">Ürün</div>
+        <sc-for list="{{ columns }}" as="c" hint-placeholder-count="4">
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-left:1px solid #F1EADD">
+            <span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:{{ c.color }}"></span>
+            <input value="{{ c.name }}" onChange="{{ c.onName }}" style="flex:1;min-width:0;border:none;background:transparent;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;padding:6px 0"></input>
+            <sc-if value="{{ c.can }}" hint-placeholder-val="{{ false }}"><button onClick="{{ c.onRemove }}" title="Sütunu sil" style="border:none;background:transparent;cursor:pointer;color:#B8B0A0;font-size:14px;padding:0 2px" style-hover="color:#E8641C">×</button></sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+        <div style="display:grid;grid-template-columns:{{ gridCols }};border-bottom:1px solid #F1EADD" style-hover="background:#FFF9EF">
+          <div style="display:flex;flex-direction:column;gap:2px;padding:16px 22px">
+            <input value="{{ r.name }}" onChange="{{ r.onName }}" style="border:none;background:transparent;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:22px;line-height:1.15;padding:0"></input>
+            <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.12em;color:#9A9385;text-transform:uppercase">{{ r.cat }}</span>
+          </div>
+          <sc-for list="{{ r.cells }}" as="cell" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;padding:0 12px;border-left:1px solid #F1EADD">
+              <input type="date" value="{{ cell.value }}" onChange="{{ cell.onChange }}" style="width:100%;border:none;background:transparent;font-family:'Geist Mono',monospace;font-size:12px;color:{{ cell.color }};padding:8px 0"></input>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <section style="margin-top:44px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px">
+      <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:40px;line-height:1">Aylık görünüm</h2>
+      <div style="display:flex;gap:18px;flex-wrap:wrap">
+        <sc-for list="{{ columns }}" as="c" hint-placeholder-count="4">
+          <span style="display:flex;align-items:center;gap:7px;font-size:12px;color:#5E584E"><span style="width:9px;height:9px;border-radius:50%;background:{{ c.color }}"></span>{{ c.name }}</span>
+        </sc-for>
+      </div>
+    </div>
+    <div style="border:1px solid #ECE2D0;background:#FFFFFF;border-radius:18px;padding:8px 22px 18px;overflow-x:auto">
+      <div style="min-width:860px">
+        <div style="display:grid;grid-template-columns:220px minmax(0,1fr)">
+          <div></div>
+          <div style="display:grid;grid-template-columns:repeat(12,1fr)">
+            <sc-for list="{{ months }}" as="m" hint-placeholder-count="12">
+              <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.12em;color:{{ m.color }};text-transform:uppercase;padding:12px 0 10px 8px;border-left:1px solid #F1EADD">{{ m.label }}</span>
+            </sc-for>
+          </div>
+        </div>
+        <sc-for list="{{ gantt }}" as="g" hint-placeholder-count="6">
+          <div style="display:grid;grid-template-columns:220px minmax(0,1fr);align-items:center;height:52px;border-top:1px solid #F1EADD">
+            <span style="font-size:14px;font-weight:500;padding-right:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ g.name }}</span>
+            <div style="position:relative;height:100%;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(100%/12 - 1px),#F1EADD calc(100%/12 - 1px),#F1EADD calc(100%/12))">
+              <div style="position:absolute;top:50%;left:{{ g.left }};width:{{ g.width }};height:8px;margin-top:-4px;border-radius:8px;background:#1F1B16"></div>
+              <sc-for list="{{ g.marks }}" as="mk" hint-placeholder-count="4">
+                <span title="{{ mk.title }}" style="position:absolute;top:50%;left:{{ mk.left }};width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:{{ mk.color }};border:3px solid #FFFFFF"></span>
+              </sc-for>
+              <div style="position:absolute;top:0;bottom:0;left:{{ todayLeft }};width:1px;background:#E8641C"></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+</sc-if>
+
+<sc-if value="{{ isIdeas }}" hint-placeholder-val="{{ false }}">
+  <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid #ECE2D0;margin-bottom:32px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#E0671A;text-transform:uppercase;font-weight:600">03 — Fikir Atlası</span>
+      <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:68px;line-height:0.95;letter-spacing:-0.02em">Akılda kalsın</h1>
+      <span style="font-size:16px;color:#756F64">Aklına geleni yapıştır; güzel fikirler kaybolmasın.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#FFFFFF;border:1px solid #ECE2D0;border-radius:999px;padding:6px 6px 6px 18px;width:min(520px,100%)">
+      <input value="{{ newIdea }}" onChange="{{ onNewIdea }}" onKeyDown="{{ ideaKey }}" placeholder="Bir fikir yaz, Enter’a bas…" style="flex:1;min-width:0;border:none;background:transparent;font-size:14px;padding:8px 0"></input>
+      <div style="display:flex;gap:4px">
+        <sc-for list="{{ ideaColors }}" as="ic" hint-placeholder-count="5">
+          <button onClick="{{ ic.onClick }}" style="width:22px;height:22px;border-radius:50%;cursor:pointer;background:{{ ic.bg }};border:2px solid {{ ic.ring }}"></button>
+        </sc-for>
+      </div>
+      <button onClick="{{ addIdea }}" style="border:none;cursor:pointer;background:#1F1B16;color:#FAF5EC;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:500;white-space:nowrap" style-hover="background:#E8641C">Yapıştır</button>
+    </div>
+  </header>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:34px 28px;padding:10px 6px">
+    <sc-for list="{{ ideas }}" as="i" hint-placeholder-count="8">
+      <div style="position:relative;display:flex;flex-direction:column;min-height:230px;padding:30px 22px 16px;background:{{ i.bg }};transform:rotate({{ i.rot }});box-shadow:0 1px 0 rgba(0,0,0,.04),0 14px 24px -14px rgba(27,25,21,.35);transition:transform .2s" style-hover="transform:rotate(0deg) scale(1.02)">
+        <span style="position:absolute;top:-9px;left:50%;width:74px;height:20px;margin-left:-37px;background:rgba(255,255,255,.55);transform:rotate(-3deg)"></span>
+        <textarea value="{{ i.text }}" onChange="{{ i.onText }}" style="flex:1;border:none;background:transparent;resize:none;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:24px;line-height:1.2;color:#1F1B16;padding:0"></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px">
+          <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.1em;color:rgba(27,25,21,.55)">{{ i.date }}</span>
+          <sc-if value="{{ i.can }}" hint-placeholder-val="{{ false }}"><button onClick="{{ i.onDelete }}" style="border:none;background:transparent;cursor:pointer;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.1em;color:rgba(27,25,21,.5);text-transform:uppercase" style-hover="color:#1F1B16">Kaldır</button></sc-if>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isMeetings }}" hint-placeholder-val="{{ false }}">
+  <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid #ECE2D0;margin-bottom:12px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#E0671A;text-transform:uppercase;font-weight:600">04 — Toplantılar</span>
+      <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:68px;line-height:0.95;letter-spacing:-0.02em">Alınan kararlar</h1>
+      <span style="font-size:16px;color:#756F64">Konuşulan her şey, sırayla ve tik tik.</span>
+    </div>
+    <button onClick="{{ addMeeting }}" style="border:none;cursor:pointer;background:#211E1A;color:#FAF5EC;padding:14px 22px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap" style-hover="background:#E8641C">+ Yeni toplantı</button>
+  </header>
+  <div style="display:flex;flex-direction:column">
+    <sc-for list="{{ meetings }}" as="m" hint-placeholder-count="4">
+      <button onClick="{{ m.onClick }}" style="display:grid;grid-template-columns:100px minmax(0,1fr) minmax(160px,200px);gap:24px;align-items:center;text-align:left;cursor:pointer;border:none;border-bottom:1px solid #ECE2D0;background:transparent;padding:26px 8px;transition:background .15s,padding .2s" style-hover="background:#FFFFFF;padding-left:20px">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:56px;line-height:0.9;color:{{ m.dayColor }}">{{ m.day }}</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">{{ m.mon }}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+          <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:clamp(22px,2.4vw,32px);line-height:1.1">{{ m.title }}</span>
+          <span style="font-size:13px;color:#756F64">{{ m.meta }}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">{{ m.stat }}</span>
+            <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:34px;line-height:1">{{ m.pct }}%</span>
+          </div>
+          <div style="height:4px;background:#EEE6D8;border-radius:4px;overflow:hidden"><div style="height:100%;width:{{ m.barW }};background:{{ m.barColor }}"></div></div>
+        </div>
+      </button>
+    </sc-for>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isMeeting }}" hint-placeholder-val="{{ false }}">
+  <button onClick="{{ goMeetings }}" style="border:none;background:transparent;cursor:pointer;padding:0;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase" style-hover="color:#E8641C">← Toplantılar</button>
+  <div style="max-width:920px;margin:22px auto 0;position:relative">
+    <div style="position:absolute;inset:10px -10px -10px 10px;background:#EEE6D8;border-radius:6px"></div>
+    <div style="position:relative;background-color:#FFFEFA;background-image:linear-gradient(90deg,transparent 95px,#E7A58F 95px,#E7A58F 96px,transparent 96px),repeating-linear-gradient(180deg,transparent 0,transparent 43px,#E6E0D2 43px,#E6E0D2 44px);background-position:0 0,0 12px;border-radius:6px;box-shadow:0 30px 60px -30px rgba(27,25,21,.35);padding:52px clamp(24px,5vw,64px) 64px 128px;min-height:760px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:24px">
+        <input type="date" value="{{ md.date }}" onChange="{{ md.onDate }}" style="border:none;background:transparent;font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:0.1em;color:#756F64;padding:0"></input>
+        <div style="display:flex;flex-direction:column;align-items:flex-end">
+          <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:54px;line-height:0.9">{{ md.pct }}%</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">{{ md.stat }}</span>
+        </div>
+      </div>
+      <textarea value="{{ md.title }}" onChange="{{ md.onTitle }}" rows="1" style="width:100%;border:none;background:transparent;resize:none;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-style:italic;font-size:clamp(34px,4.2vw,52px);line-height:1.15;padding:0 0 4px;margin:6px 0 4px;field-sizing:content;overflow:hidden"></textarea>
+      <div style="display:flex;align-items:center;gap:10px;height:44px">
+        <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#9A9385;text-transform:uppercase">Katılımcılar</span>
+        <input value="{{ md.people }}" onChange="{{ md.onPeople }}" style="flex:1;border:none;background:transparent;font-size:15px;padding:0"></input>
+      </div>
+      <div style="height:44px;display:flex;align-items:flex-end;padding-bottom:8px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#E8641C;text-transform:uppercase">Kararlar</span></div>
+      <sc-for list="{{ decisions }}" as="d" hint-placeholder-count="5">
+        <div style="position:relative;display:flex;align-items:center;gap:16px;height:44px">
+          <span style="position:absolute;left:-84px;width:56px;text-align:right;font-family:'Geist Mono',monospace;font-size:13px;color:#B8B0A0">{{ d.num }}</span>
+          <button onClick="{{ d.onToggle }}" style="flex-shrink:0;width:22px;height:22px;border-radius:6px;cursor:pointer;border:1.5px solid {{ d.boxBorder }};background:{{ d.boxBg }};color:#FFFEFA;font-size:13px;line-height:1;display:grid;place-items:center;padding:0">{{ d.check }}</button>
+          <input value="{{ d.text }}" onChange="{{ d.onText }}" style="flex:1;min-width:0;border:none;background:transparent;font-size:17px;padding:0;color:{{ d.color }};text-decoration:{{ d.deco }};text-decoration-color:#B8B0A0"></input>
+          <sc-if value="{{ d.done }}" hint-placeholder-val="{{ false }}">
+            <span style="flex-shrink:0;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.18em;color:#2F7446;border:1.5px solid #2F7446;padding:3px 8px;border-radius:4px;transform:rotate(-4deg)">BİTTİ</span>
+          </sc-if>
+          <sc-if value="{{ d.can }}" hint-placeholder-val="{{ false }}"><button onClick="{{ d.onDelete }}" style="flex-shrink:0;border:none;background:transparent;cursor:pointer;color:#DCCFB8;font-size:16px;padding:0 4px" style-hover="color:#E8641C">×</button></sc-if>
+        </div>
+      </sc-for>
+      <div style="position:relative;display:flex;align-items:center;gap:16px;height:44px">
+        <span style="position:absolute;left:-84px;width:56px;text-align:right;font-family:'Geist Mono',monospace;font-size:13px;color:#E8641C">{{ nextNum }}</span>
+        <span style="flex-shrink:0;width:22px;height:22px;border-radius:6px;border:1.5px dashed #DCCFB8"></span>
+        <input value="{{ newDecision }}" onChange="{{ onNewDecision }}" onKeyDown="{{ decisionKey }}" placeholder="Yeni karar yaz, Enter’a bas…" style="flex:1;border:none;background:transparent;font-size:17px;padding:0"></input>
+      </div>
+    </div>
+  </div>
+</sc-if>
+<sc-if value="{{ isArchive }}" hint-placeholder-val="{{ false }}">
+  <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid #ECE2D0;margin-bottom:32px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#E0671A;text-transform:uppercase;font-weight:600">05 — Arşiv</span>
+      <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:68px;line-height:0.95;letter-spacing:-0.02em">Biten işler</h1>
+      <span style="font-size:16px;color:#756F64">Yüzde yüze ulaşan projeler, bütün aşamalarıyla burada.</span>
+    </div>
+  </header>
+  <sc-if value="{{ archiveEmpty }}" hint-placeholder-val="{{ false }}">
+    <div style="border:1px dashed #DCCFB8;border-radius:16px;padding:56px;text-align:center;color:#756F64;font-size:14px">Henüz arşivde proje yok. Bir projenin bütün işleri bitince kendiliğinden buraya gelir.</div>
+  </sc-if>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px">
+    <sc-for list="{{ archiveCards }}" as="a" hint-placeholder-count="2">
+      <button onClick="{{ a.onClick }}" style="position:relative;display:flex;flex-direction:column;gap:6px;text-align:left;cursor:pointer;border:1px solid #ECE2D0;background:#F4EEE3;border-radius:18px;padding:24px 24px 20px;transition:background .15s,border-color .15s" style-hover="background:#FFFFFF;border-color:#DCCFB8">
+        <span style="position:absolute;top:20px;right:20px;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.18em;color:#2F7446;border:1.5px solid #2F7446;padding:4px 8px;border-radius:4px;transform:rotate(-4deg)">TAMAMLANDI</span>
+        <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">{{ a.stages }}</span>
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:30px;line-height:1.05;padding-right:110px">{{ a.name }}</span>
+        <span style="font-size:13px;color:#756F64">{{ a.sub }}</span>
+        <div style="display:flex;gap:28px;margin-top:18px;padding-top:14px;border-top:1px solid #E6DCC9">
+          <div style="display:flex;flex-direction:column;gap:3px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Açılış</span><span style="font-size:14px;font-weight:500">{{ a.opened }}</span></div>
+          <div style="display:flex;flex-direction:column;gap:3px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Bitiş</span><span style="font-size:14px;font-weight:500">{{ a.finished }}</span></div>
+        </div>
+      </button>
+    </sc-for>
+  </div>
+</sc-if>
+<sc-if value="{{ isLogs }}" hint-placeholder-val="{{ false }}">
+  <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid #ECE2D0;margin-bottom:32px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#E0671A;text-transform:uppercase;font-weight:600">06 — Kayıtlar</span>
+      <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:68px;line-height:0.95;letter-spacing:-0.02em">Kim, ne zaman, ne yaptı</h1>
+      <span style="font-size:16px;color:#756F64">Kullanıcıların giriş ve süre bilgileri ile yapılan her işin tarihli dökümü.</span>
+    </div>
+  </header>
+  <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase;display:block;margin-bottom:14px">Kullanıcılar</span>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:48px">
+    <sc-for list="{{ userStats }}" as="us" hint-placeholder-count="2">
+      <div style="display:flex;flex-direction:column;gap:18px;border:1px solid #ECE2D0;background:#FFFFFF;border-radius:18px;padding:22px 22px 20px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="width:38px;height:38px;flex-shrink:0;border-radius:50%;background:{{ us.bg }};color:#211E1A;display:grid;place-items:center;font-size:13px;font-weight:700">{{ us.ini }}</span>
+          <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:16px;font-weight:600">{{ us.name }}</span><span style="font-family:'Geist Mono',monospace;font-size:11px;color:#9E978A">@{{ us.u }} · {{ us.role }}</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding-top:14px;border-top:1px solid #F1EADD">
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase;font-size:9px">Süre</span><span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:20px;line-height:1.1">{{ us.time }}</span></div>
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase;font-size:9px">Giriş</span><span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:20px;line-height:1.1">{{ us.logins }}</span></div>
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase;font-size:9px">Son giriş</span><span style="font-size:13px;font-weight:500;line-height:1.3">{{ us.last }}</span></div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase;display:block;margin-bottom:6px">Yapılanlar</span>
+  <sc-if value="{{ logEmpty }}" hint-placeholder-val="{{ false }}">
+    <div style="border:1px dashed #DCCFB8;border-radius:16px;padding:40px;text-align:center;color:#756F64;font-size:14px">Henüz kayıt yok.</div>
+  </sc-if>
+  <sc-for list="{{ logGroups }}" as="g" hint-placeholder-count="2">
+    <div style="display:grid;grid-template-columns:140px minmax(0,1fr);gap:24px;padding:22px 0;border-bottom:1px solid #ECE2D0">
+      <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:20px;line-height:1.2">{{ g.day }}</span>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ g.rows }}" as="lr" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-family:'Geist Mono',monospace;font-size:12px;color:#9E978A;width:44px;flex-shrink:0">{{ lr.time }}</span>
+            <span style="width:26px;height:26px;flex-shrink:0;border-radius:50%;background:#F1EADD;display:grid;place-items:center;font-size:10px;font-weight:700">{{ lr.ini }}</span>
+            <span style="font-size:14px;line-height:1.45;text-wrap:pretty"><strong style="font-weight:600">{{ lr.name }}</strong> {{ lr.text }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-for>
+</sc-if>
+</main>
+</div>
+
+<sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeDrawer }}" style="position:fixed;inset:0;background:rgba(27,25,21,.28);backdrop-filter:blur(2px);z-index:20"></div>
+  <aside style="position:fixed;top:0;right:0;bottom:0;width:min(480px,100vw);background:#FFFFFF;z-index:21;box-shadow:-30px 0 60px -30px rgba(27,25,21,.4);display:flex;flex-direction:column;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:22px 30px;border-bottom:1px solid #ECE2D0">
+      <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#756F64;text-transform:uppercase">{{ dr.crumb }}</span>
+      <button onClick="{{ closeDrawer }}" style="border:none;background:transparent;cursor:pointer;font-size:20px;color:#756F64" style-hover="color:#1F1B16">×</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:22px;padding:28px 30px 30px">
+      <textarea value="{{ dr.title }}" onChange="{{ dr.onTitle }}" rows="2" style="border:none;background:transparent;resize:none;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:38px;line-height:1.05;padding:0"></textarea>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Durum</span>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;background:#F6EEDD;border-radius:12px">
+          <sc-for list="{{ dr.statuses }}" as="st" hint-placeholder-count="3">
+            <button onClick="{{ st.onClick }}" style="border:none;cursor:pointer;padding:10px;border-radius:9px;font-size:13px;font-weight:500;background:{{ st.bg }};color:{{ st.color }};box-shadow:{{ st.shadow }}">{{ st.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Açıklama</span>
+        <textarea value="{{ dr.desc }}" onChange="{{ dr.onDesc }}" rows="5" placeholder="İşin detayları, notlar…" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;resize:vertical;font-size:14px;line-height:1.6;padding:14px 16px"></textarea>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Sorumlu</span>
+        <input value="{{ dr.owner }}" onChange="{{ dr.onOwner }}" placeholder="Kim yapacak?" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-size:14px;padding:13px 16px"></input>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        <div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Açılış</span><input type="date" value="{{ dr.opened }}" onChange="{{ dr.onOpened }}" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-family:'Geist Mono',monospace;font-size:12px;padding:12px 10px"></input></div>
+        <div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Hedef</span><input type="date" value="{{ dr.due }}" onChange="{{ dr.onDue }}" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-family:'Geist Mono',monospace;font-size:12px;padding:12px 10px"></input></div>
+        <div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Kapanış</span><input type="date" value="{{ dr.closed }}" onChange="{{ dr.onClosed }}" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-family:'Geist Mono',monospace;font-size:12px;padding:12px 10px"></input></div>
+      </div>
+      <sc-if value="{{ dr.can }}" hint-placeholder-val="{{ false }}"><button onClick="{{ dr.onDelete }}" style="align-self:flex-start;margin-top:10px;border:none;background:transparent;cursor:pointer;padding:0;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.12em;color:#B2431D;text-transform:uppercase" style-hover="color:#1F1B16">İşi sil</button></sc-if>
+    </div>
+  </aside>
+</sc-if>
+
+<sc-if value="{{ adminModal }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeAdmin }}" style="position:fixed;inset:0;background:rgba(27,25,21,.35);backdrop-filter:blur(3px);z-index:30"></div>
+  <div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(400px,92vw);background:#FFFFFF;border-radius:22px;padding:32px;z-index:31;box-shadow:0 40px 80px -30px rgba(27,25,21,.5);display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;align-items:center;gap:10px;color:#E8641C"><span style="display:flex;flex-direction:column;align-items:center;pointer-events:none"><span style="width:8px;height:6px;border:2px solid currentColor;border-bottom:none;border-radius:5px 5px 0 0"></span><span style="width:12px;height:9px;border-radius:2px;background:currentColor"></span></span><span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;font-weight:600">Admin girişi</span></div>
+    <h3 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:30px;line-height:1.05">Yönetici olarak devam et</h3>
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Kullanıcı adı</span><input value="{{ loginU }}" onChange="{{ onLoginU }}" onKeyDown="{{ adminKey }}" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-size:15px;padding:14px 16px;width:100%"></input></div>
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Şifre</span><input type="password" value="{{ loginP }}" onChange="{{ onLoginP }}" onKeyDown="{{ adminKey }}" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-size:15px;padding:14px 16px;width:100%"></input></div>
+    <sc-if value="{{ loginErr }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#B2431D">{{ loginErr }}</span></sc-if>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+      <button onClick="{{ closeAdmin }}" style="border:1px solid #ECE2D0;cursor:pointer;background:transparent;padding:12px 18px;border-radius:999px;font-size:14px">Vazgeç</button>
+      <button onClick="{{ doAdmin }}" style="border:none;cursor:pointer;background:#211E1A;color:#FAF5EC;padding:12px 22px;border-radius:999px;font-size:14px;font-weight:500" style-hover="background:#E8641C">Kilidi aç</button>
+    </div>
+  </div>
+</sc-if>
+<sc-if value="{{ settingsOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeSettings }}" style="position:fixed;inset:0;background:rgba(27,25,21,.35);backdrop-filter:blur(3px);z-index:30"></div>
+  <div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(620px,94vw);max-height:90vh;overflow-y:auto;background:#FFFFFF;border-radius:22px;z-index:31;box-shadow:0 40px 80px -30px rgba(27,25,21,.5)">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:24px 30px;border-bottom:1px solid #ECE2D0">
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#E0671A;text-transform:uppercase;font-weight:600">Ayarlar</span><span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:30px;line-height:1">Kullanıcılar</span></div>
+      <button onClick="{{ closeSettings }}" style="border:none;background:transparent;cursor:pointer;font-size:22px;color:#756F64">×</button>
+    </div>
+    <div style="display:flex;flex-direction:column;padding:8px 30px">
+      <sc-for list="{{ usersList }}" as="us" hint-placeholder-count="2">
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #F1EADD">
+          <span style="width:36px;height:36px;flex-shrink:0;border-radius:50%;background:{{ us.bg }};color:#211E1A;display:grid;place-items:center;font-size:12px;font-weight:700">{{ us.ini }}</span>
+          <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:15px;font-weight:500">{{ us.name }}</span><span style="font-family:'Geist Mono',monospace;font-size:11px;color:#9E978A">@{{ us.u }}</span></div>
+          <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;padding:5px 9px;border-radius:999px;background:{{ us.roleBg }};color:{{ us.roleColor }}">{{ us.role }}</span>
+          <sc-if value="{{ us.can }}" hint-placeholder-val="{{ false }}"><button onClick="{{ us.onDelete }}" style="border:none;background:transparent;cursor:pointer;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.12em;color:#B2431D;text-transform:uppercase">Kaldır</button></sc-if>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;padding:22px 30px 30px;background:#FAF5EC;border-top:1px solid #ECE2D0">
+      <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Yeni kullanıcı ekle</span>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
+        <input value="{{ nuName }}" onChange="{{ onNuName }}" placeholder="Ad soyad" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-size:15px;padding:14px 16px;width:100%"></input>
+        <input value="{{ nuU }}" onChange="{{ onNuU }}" placeholder="Kullanıcı adı" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-size:15px;padding:14px 16px;width:100%"></input>
+        <input value="{{ nuP }}" onChange="{{ onNuP }}" placeholder="Şifre" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-size:15px;padding:14px 16px;width:100%"></input>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;gap:4px;padding:4px;background:#F1EADD;border-radius:12px">
+          <sc-for list="{{ nuRoles }}" as="ro" hint-placeholder-count="2">
+            <button onClick="{{ ro.onClick }}" style="border:none;cursor:pointer;padding:9px 14px;border-radius:9px;font-size:13px;font-weight:500;background:{{ ro.bg }};color:{{ ro.color }}">{{ ro.label }}</button>
+          </sc-for>
+        </div>
+        <button onClick="{{ addUser }}" style="border:none;cursor:pointer;background:#211E1A;color:#FAF5EC;padding:13px 22px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap" style-hover="background:#E8641C">+ Kullanıcı ekle</button>
+      </div>
+      <sc-if value="{{ nuErr }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#B2431D">{{ nuErr }}</span></sc-if>
+      <span style="font-size:12px;color:#756F64;line-height:1.5">Ekip üyeleri her şeyi görebilir, ekleyip düzenleyebilir; hiçbir şeyi silemez. Silme yalnızca admin kilidi açıkken yapılır.</span>
+    </div>
+  </div>
+</sc-if>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const KEY = 'bikutu-panel-canli';
+const uid = () => Math.random().toString(36).slice(2, 9);
+const MON = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+const fmt = d => { if (!d) return '—'; const x = new Date(d + 'T00:00'); return x.getDate() + ' ' + MON[x.getMonth()] + ' ' + x.getFullYear(); };
+const ini = n => (n || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+const today = () => new Date().toISOString().slice(0, 10);
+const PC = ['#E8641C','#F2A516','#3E9E8F','#5B7FC7','#D0678A','#8A74C4'];
+const PS = ['#FFE3DA','#FFF1C9','#D3F3EE','#DDE7FF','#FFE0EC','#EAE0FF'];
+const PI = ['#E0431F','#C78F00','#0E8C7E','#2F63D8','#D9477F','#6D40D8'];
+const COLS = ['oklch(0.64 0.16 38)', 'oklch(0.64 0.16 85)', 'oklch(0.64 0.16 150)', 'oklch(0.64 0.16 250)', 'oklch(0.64 0.16 310)', 'oklch(0.64 0.16 200)'];
+const NOTE = ['#F6E3A1', '#F4CDBD', '#CFE5D6', '#D3DDF0', '#EBD3DF'];
+const ST = {
+  todo: { label: 'Bekliyor', bg: '#ECE7DC', color: '#5E584E' },
+  doing: { label: 'Devam ediyor', bg: '#FBE3D6', color: '#B2431D' },
+  done: { label: 'Tamamlandı', bg: '#DDEEDF', color: '#2F7446' }
+};
+const T = (title, owner, status, opened, due, closed, desc) => ({ id: uid(), title, owner, status, opened, due, closed: closed || '', desc: desc || '' });
+
+const DEFAULT_USERS = [{ id: 'u0', name: 'Yaman', u: 'yaman', p: 'yaman.1905', admin: true }];
+const FB_V = '10.12.2', FB_DOMAIN = 'bikutuoyun.panel';
+const email = u => u.trim().toLowerCase() + '@' + FB_DOMAIN;
+const FB_READY = () => { const c = window.BIKUTU_FIREBASE; return !!(c && c.apiKey && !/BURAYA/.test(c.apiKey)); };
+const SECTIONS = { projects: d => ({ items: d.projects }), calendar: d => ({ columns: d.columns, products: d.products }), ideas: d => ({ items: d.ideas }), meetings: d => ({ items: d.meetings }) };
+const EMPTY = () => ({ users: [], stats: {}, log: [], projects: [], columns: ['İşe başlama', 'Tasarım teslim', 'Baskıya giriş', 'Yayın'].map(name => ({ id: uid(), name })), products: [], ideas: [], meetings: [] });
+const ERR = e => { const c = (e && e.code) || ''; if (/email-already-in-use/.test(c)) return 'Bu kullanıcı adı daha önce kullanılmış, başka bir ad seç.'; if (/weak-password/.test(c)) return 'Şifre en az 6 karakter olmalı.'; if (/too-many-requests/.test(c)) return 'Çok fazla deneme yapıldı, biraz sonra tekrar dene.'; if (/network/.test(c)) return 'İnternet bağlantısını kontrol et.'; return 'Kullanıcı adı ya da şifre hatalı.'; };
+function seed() {
+  const E = 'Elif Aydın', M = 'Mert Kaya', Z = 'Zeynep Arslan', C = 'Can Demir', S = 'Selin Yıldız';
+  const P = (name, sub, opened, stages) => ({ id: uid(), name, sub, opened, stages: stages.map(([n, tasks]) => ({ id: uid(), name: n, tasks })) });
+  return {
+    users: JSON.parse(JSON.stringify(DEFAULT_USERS)),
+    stats: { yaman: { logins: 38, minutes: 1275, last: '2026-09-28T09:12:00' } },
+    log: [
+      ['2026-09-28T09:40:00', '“Kelimegen” projesinde “Matbaa prova onayı” işini “Devam ediyor” yaptı'],
+      ['2026-09-28T09:12:00', 'Giriş yaptı'],
+      ['2026-09-27T16:05:00', 'Fikir Atlası’na not ekledi'],
+      ['2026-09-27T15:48:00', 'Kararı bitirdi: Aile kitapçığı 16 sayfa olacak'],
+      ['2026-09-27T15:10:00', 'Giriş yaptı'],
+      ['2026-09-24T11:30:00', 'Yeni toplantı açtı'],
+      ['2026-09-24T11:02:00', '“Kelimegen” projesine “Teknik İşler” aşamasını ekledi']
+    ].map(([at, text]) => ({ id: uid(), at, u: 'yaman', name: 'Yaman', text })),
+    projects: [
+      P('Kelimegen', 'Kart oyunu · Yeni baskı', '2026-06-02', [
+        ['Kutu', [
+          T('Kutu tasarımı', E, 'done', '2026-06-03', '2026-06-20', '2026-06-18', 'Ön yüz, yan yüzler ve arka yüz. Logo yerleşimi yeni baskıya göre güncellenecek; yaş ve oyuncu sayısı ikonları eklenecek.'),
+          T('Kutu metinleri ve barkod', Z, 'done', '2026-06-10', '2026-06-24', '2026-06-22', 'Arka yüz tanıtım metni, içindekiler listesi, uyarı metinleri ve EAN-13 barkod.'),
+          T('Matbaa prova onayı', C, 'doing', '2026-07-01', '2026-10-05', '', 'Kromo karton 350 gr, mat selefon. Renk provası geldi, kırmızı tonları için ikinci prova istendi.'),
+          T('Kutu içi insert', C, 'todo', '2026-09-15', '2026-10-15', '', 'Kart bölmeleri için karton insert ölçüleri netleşecek.')
+        ]],
+        ['Kartlar', [
+          T('Kart şablonu', E, 'done', '2026-06-05', '2026-06-25', '2026-06-25', '63×88 mm, köşe radiusu 3 mm. Harf ve puan alanları sabitlendi.'),
+          T('240 kelime listesi redaksiyonu', Z, 'doing', '2026-06-15', '2026-10-01', '', 'Yaş grubuna uygunluk kontrolü; TDK yazımına göre son okuma.'),
+          T('Kart illüstrasyonları', M, 'doing', '2026-07-01', '2026-10-20', '', '48 özel kart için karakter çizimleri. 30/48 teslim edildi.'),
+          T('Baskı dosyası hazırlığı', E, 'todo', '2026-10-01', '2026-10-25', '')
+        ]],
+        ['Aile Kitapçığı', [
+          T('Oyun kuralları metni', Z, 'done', '2026-06-20', '2026-07-10', '2026-07-08', 'Temel oyun + 3 varyasyon. Örnek el görselleri eklenecek.'),
+          T('Aile etkinlik önerileri', Z, 'doing', '2026-07-15', '2026-10-01', '', 'Evde kelime oyunları için 12 etkinlik önerisi.'),
+          T('Sayfa düzeni', E, 'todo', '2026-09-20', '2026-10-15', '')
+        ]],
+        ['Tanıtım Kitapçığı', [
+          T('Bayi tanıtım metni', S, 'doing', '2026-08-01', '2026-10-10', '', 'Kısa ürün hikâyesi, kazanımlar ve raf görseli.'),
+          T('Ürün fotoğraf çekimi', S, 'todo', '2026-10-05', '2026-10-30', '')
+        ]],
+        ['Teknik İşler (Sözleşme, Arşiv, Çizimler)', [
+          T('Tasarımcı sözleşmesi', C, 'done', '2026-06-02', '2026-06-10', '2026-06-09'),
+          T('Çizim arşivi', M, 'doing', '2026-07-01', '2026-11-01', '', 'Katmanlı dosyalar ortak klasörde; sürüm adları standarda çekilecek.'),
+          T('ISBN / bandrol başvurusu', C, 'todo', '2026-10-01', '2026-10-20', '')
+        ]]
+      ]),
+      P('Harfabe — 2. Seri', 'Kitap · Etkinlik ve hikâye', '2026-04-15', [
+        ['Metin', [T('Hikâye metinleri', Z, 'done', '2026-04-16', '2026-05-30', '2026-05-28'), T('Etkinlik sayfaları', Z, 'done', '2026-05-01', '2026-06-15', '2026-06-20')]],
+        ['İllüstrasyon', [T('Karakter tasarımları', M, 'done', '2026-05-01', '2026-06-01', '2026-06-01'), T('İç sayfa çizimleri', M, 'doing', '2026-06-05', '2026-10-01')]],
+        ['Mizanpaj', [T('Sayfa düzeni', E, 'doing', '2026-08-01', '2026-10-15'), T('Kapak', E, 'done', '2026-07-01', '2026-07-20', '2026-07-19')]]
+      ]),
+      P('Türkiye Dikkat ve Genel Kültür', 'Eğitici oyun · Güncelleme', '2026-07-20', [
+        ['Sorular', [T('Soru havuzu güncellemesi', Z, 'doing', '2026-07-21', '2026-10-10'), T('Doğruluk kontrolü', Z, 'todo', '2026-09-01', '2026-10-20')]],
+        ['Harita Kartları', [T('Harita revizyonu', M, 'todo', '2026-08-01', '2026-11-01')]],
+        ['Kutu', [T('Kutu güncellemesi', E, 'todo', '2026-09-01', '2026-11-10')]]
+      ]),
+      P('Babi ile Çıkartmalı Set', 'Etkinlik seti · 7–9 yaş', '2026-08-11', [
+        ['Konsept', [T('Yaş grubu kazanımları', Z, 'done', '2026-08-12', '2026-08-30', '2026-08-29'), T('Tema listesi', S, 'done', '2026-08-12', '2026-09-05', '2026-09-04')]],
+        ['Çıkartmalar', [T('Çıkartma çizimleri', M, 'doing', '2026-09-01', '2026-11-01'), T('Kesim şablonu', C, 'todo', '2026-10-01', '2026-11-10')]],
+        ['Kitapçık', [T('Etkinlik sayfaları', Z, 'todo', '2026-09-20', '2026-11-15')]]
+      ]),
+      P('Bilmecelerle İlk Kelimelerim', 'Kitap · Sesli sürüm', '2026-09-01', [
+        ['Ses', [T('Seslendirme sanatçısı', S, 'doing', '2026-09-02', '2026-10-01'), T('Stüdyo kaydı', C, 'todo', '2026-10-05', '2026-10-25')]],
+        ['Dijital', [T('QR kod sayfaları', E, 'todo', '2026-10-01', '2026-11-01')]]
+      ]),
+      P('Yeni Nesil İsim Şehir', 'Oyun · Seyahat boyu', '2026-03-05', [
+        ['Tasarım', [T('Mini kutu', E, 'done', '2026-03-06', '2026-04-01', '2026-03-30'), T('Kalem bloğu', E, 'done', '2026-03-10', '2026-04-10', '2026-04-08')]],
+        ['Üretim', [T('Matbaa', C, 'done', '2026-04-15', '2026-05-20', '2026-05-18'), T('Raf teslimi', S, 'done', '2026-05-20', '2026-06-01', '2026-06-01')]]
+      ])
+    ],
+    columns: [{ id: uid(), name: 'İşe başlama' }, { id: uid(), name: 'Tasarım teslim' }, { id: uid(), name: 'Baskıya giriş' }, { id: uid(), name: 'Yayın' }],
+    products: [
+      ['Kelimegen', 'Eğitici Oyun', ['2026-06-02', '2026-10-25', '2026-11-10', '2026-12-01']],
+      ['Harfabe — 2. Seri', 'Kitap', ['2026-04-15', '2026-10-15', '2026-10-28', '2026-11-20']],
+      ['Türkiye Dikkat Oyunu', 'Eğitici Oyun', ['2026-07-20', '2026-11-10', '2026-11-25', '2026-12-20']],
+      ['Babi ile Çıkartmalı Set', 'Eğitici Oyun', ['2026-08-11', '2026-11-15', '2026-11-30', '2026-12-15']],
+      ['Bilmecelerle İlk Kelimelerim', 'Kitap', ['2026-09-01', '2026-11-01', '', '2026-12-10']],
+      ['Yeni Nesil İsim Şehir', 'Eğitici Oyun', ['2026-03-05', '2026-04-10', '2026-04-20', '2026-06-01']]
+    ].map(([name, cat, d]) => ({ id: uid(), name, cat, dates: d })),
+    ideas: [
+      ['Kelimegen için “aile turnuvası” kartı — kazanan kelimeyi yazıp kutuya asar.', 0, '2026-09-20'],
+      ['Her kutuya QR: kural videosu 60 saniyeyi geçmesin.', 3, '2026-09-18'],
+      ['Harfabe karakterleri ile peluş? Önce küçük bir anket.', 1, '2026-09-12'],
+      ['Bayiler için raf standı — 6 ürünlük mini vitrin.', 2, '2026-09-05'],
+      ['Öğretmen kiti: sınıf seti fiyatlandırması.', 4, '2026-08-30'],
+      ['Kutunun iç kapağına “Bu oyunu kim yaptı?” sayfası.', 0, '2026-08-22'],
+      ['Yaz tatili kampanyası: seyahat serisi bundle.', 3, '2026-08-10']
+    ].map(([text, c, date]) => ({ id: uid(), text, color: c, date })),
+    meetings: [
+      ['2026-09-24', 'Kelimegen baskı öncesi', 'Elif, Zeynep, Can, Selin', [['Kırmızı tonu için ikinci prova istenecek', true], ['Kelime listesi 1 Ekim’de kilitlenecek', false], ['Aile kitapçığı 16 sayfa olacak', true], ['Bayi tanıtımı fuardan önce hazır', false]]],
+      ['2026-09-10', 'Q4 yayın planı', 'Tüm ekip', [['Aralık’ta 3 ürün rafta olacak', true], ['Türkiye oyunu Aralık sonuna kayabilir', true], ['Yeni illüstratör görüşmesi', true], ['Fuar standı bütçesi onaylandı', true], ['Instagram içerik takvimi hazırlanacak', false]]],
+      ['2026-08-27', 'Babi seti konsept', 'Zeynep, Mert, Selin', [['Tema: mevsimler ve meslekler', true], ['120 çıkartma, 2 sayfa', true], ['Kesim için iki matbaadan teklif', false]]],
+      ['2026-08-05', 'Harfabe ara değerlendirme', 'Zeynep, Mert, Elif', [['Karakter paleti onaylandı', true], ['Kapakta harf “B” öne çıkacak', true]]]
+    ].map(([date, title, people, ds]) => ({ id: uid(), date, title, people, decisions: ds.map(([text, done]) => ({ id: uid(), text, done })) }))
+  };
+}
+
+class Component extends DCLogic {
+  state = { sideOpen: true, projOpen: true, view: 'projects', projectId: null, stageId: null, taskId: null, meetingId: null, data: seed(), newStage: '', newIdea: '', ideaColor: 0, newDecision: '', session: null, loginU: '', loginP: '', loginErr: '', adminModal: false, settingsOpen: false, nuName: '', nuU: '', nuP: '', nuAdmin: false, nuErr: '' };
+  isArch(p) { const r = this.pct(p); return r.all > 0 && r.pct === 100; }
+  setSession(sess) { this.setState({ session: sess, loginU: '', loginP: '', loginErr: '', adminModal: false }); try { if (sess) localStorage.setItem('bikutu-session', JSON.stringify(sess)); else localStorage.removeItem('bikutu-session'); } catch (e) {} }
+  componentDidMount() {
+    if (FB_READY()) {
+      try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) this.setState({ sideOpen: s.sideOpen !== false, projOpen: s.projOpen !== false, view: s.view || 'projects', projectId: s.projectId, stageId: s.stageId, meetingId: s.meetingId }); } catch (e) {}
+      this.initFb();
+    } else {
+      try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.data) { if (!s.data.users) s.data.users = JSON.parse(JSON.stringify(DEFAULT_USERS)); this.setState({ ...s, taskId: null }); } } catch (e) {}
+      try { const ss = JSON.parse(localStorage.getItem('bikutu-session')); if (ss) this.setState({ session: ss }); } catch (e) {}
+    }
+    this.timer = setInterval(() => {
+      const ss = this.state.session; if (!ss || document.hidden) return;
+      if (this.fb) { const { F, db } = this.fb; F.setDoc(F.doc(db, 'stats', ss.u), { minutes: F.increment(1) }, { merge: true }).catch(() => {}); return; }
+      this.upd(d => { d.stats = d.stats || {}; const st = d.stats[ss.u] = d.stats[ss.u] || { logins: 0, minutes: 0, last: '' }; st.minutes = (st.minutes || 0) + 1; });
+    }, 60000);
+  }
+  async initFb() {
+    this.setState({ fbMode: true, booting: true, data: EMPTY(), session: null });
+    try {
+      const base = 'https://www.gstatic.com/firebasejs/' + FB_V + '/';
+      const [A, Au, F] = await Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-auth.js'), import(base + 'firebase-firestore.js')]);
+      const app = A.initializeApp(window.BIKUTU_FIREBASE);
+      this.fb = { A, Au, F, app, auth: Au.getAuth(app), db: F.getFirestore(app), pending: {}, last: {}, unsubs: [], boot: false };
+      Au.onAuthStateChanged(this.fb.auth, user => { if (!this.fb.boot) this.enter(user); });
+    } catch (e) { console.error(e); this.setState({ booting: false, loginErr: 'Firebase’e bağlanılamadı. firebase-config.js dosyasını kontrol et.' }); }
+  }
+  async enter(user) {
+    const { Au, F, db, auth } = this.fb;
+    this.fb.unsubs.forEach(u => u()); this.fb.unsubs = [];
+    if (!user) { this.setState({ session: null, booting: false, data: EMPTY() }); return null; }
+    const snap = await F.getDoc(F.doc(db, 'users', user.uid));
+    if (!snap.exists()) { await Au.signOut(auth); this.setState({ session: null, booting: false, loginErr: 'Bu hesap kapatılmış. Yöneticine danış.' }); return null; }
+    const me = snap.data();
+    const sess = { uid: user.uid, u: me.username, name: me.name, admin: !!me.admin, acctAdmin: !!me.admin };
+    this.setState({ session: sess, booting: false, loginU: '', loginP: '', adminModal: false });
+    this.listen(sess.admin);
+    return sess;
+  }
+  listen(admin) {
+    const { F, db } = this.fb, un = this.fb.unsubs;
+    Object.keys(SECTIONS).forEach(k => un.push(F.onSnapshot(F.doc(db, 'panel', k), sn => {
+      if (this.fb.pending[k] || !sn.exists()) return;
+      const v = sn.data(); this.fb.last[k] = JSON.stringify(SECTIONS[k](k === 'calendar' ? v : { [k]: v.items }));
+      this.setState(s => { const d = { ...s.data }; if (k === 'calendar') { d.columns = v.columns || []; d.products = v.products || []; } else d[k] = v.items || []; return { data: d }; });
+    })));
+    un.push(F.onSnapshot(F.collection(db, 'users'), qs => this.setState(s => ({ data: { ...s.data, users: qs.docs.map(x => ({ uid: x.id, u: x.data().username, name: x.data().name, admin: !!x.data().admin })) } }))));
+    if (admin) {
+      un.push(F.onSnapshot(F.collection(db, 'stats'), qs => { const st = {}; qs.docs.forEach(x => { st[x.id] = x.data(); }); this.setState(s => ({ data: { ...s.data, stats: st } })); }));
+      un.push(F.onSnapshot(F.query(F.collection(db, 'log'), F.orderBy('at', 'desc'), F.limit(400)), qs => this.setState(s => ({ data: { ...s.data, log: qs.docs.map(x => ({ id: x.id, ...x.data() })) } }))));
+    }
+  }
+  push(data) {
+    const { F, db } = this.fb;
+    Object.keys(SECTIONS).forEach(k => {
+      const js = JSON.stringify(SECTIONS[k](data));
+      if (js === this.fb.last[k]) return;
+      this.fb.last[k] = js; clearTimeout(this.fb.pending[k]);
+      this.fb.pending[k] = setTimeout(() => { F.setDoc(F.doc(db, 'panel', k), JSON.parse(js)).catch(e => console.error(e)).finally(() => { this.fb.pending[k] = null; }); }, 600);
+    });
+  }
+  logAct(text, who) {
+    const w = who || this.state.session; if (!this.fb || !w) return;
+    const { F, db } = this.fb; F.addDoc(F.collection(db, 'log'), { at: new Date().toISOString(), u: w.u, name: w.name, text }).catch(() => {});
+  }
+  async loginFb(asAdmin) {
+    const { Au, F, auth, db } = this.fb; const u = this.state.loginU.trim().toLowerCase(), p = this.state.loginP;
+    if (!u || !p) return this.setState({ loginErr: 'Kullanıcı adı ve şifre gir.' });
+    this.setState({ loginBusy: true, loginErr: '' });
+    try {
+      let cred;
+      try { cred = await Au.signInWithEmailAndPassword(auth, email(u), p); }
+      catch (e) {
+        if (u !== 'yaman' || p !== 'yaman.1905') throw e;
+        this.fb.boot = true;
+        try { cred = await Au.createUserWithEmailAndPassword(auth, email(u), p); } catch (e2) { this.fb.boot = false; throw e; }
+        await F.setDoc(F.doc(db, 'users', cred.user.uid), { username: 'yaman', name: 'Yaman', admin: true });
+        this.fb.boot = false;
+      }
+      const sess = await this.enter(cred.user);
+      if (!sess) return;
+      if (asAdmin && !sess.admin) this.setState({ loginErr: 'Bu hesabın admin yetkisi yok.' });
+      F.setDoc(F.doc(db, 'stats', sess.u), { logins: F.increment(1), last: new Date().toISOString() }, { merge: true }).catch(() => {});
+      this.logAct(asAdmin ? 'Admin olarak giriş yaptı' : 'Giriş yaptı', sess);
+    } catch (e) { this.setState({ loginErr: ERR(e) }); }
+    finally { this.setState({ loginBusy: false }); }
+  }
+  logout() { if (this.fb) { this.logAct('Çıkış yaptı'); this.fb.Au.signOut(this.fb.auth); } else this.setSession(null); }
+  async addUserFb(name, u, p, admin) {
+    const { A, Au, F, db } = this.fb;
+    const sec = A.getApps().find(a => a.name === 'ikincil') || A.initializeApp(window.BIKUTU_FIREBASE, 'ikincil');
+    const sa = Au.getAuth(sec);
+    const cred = await Au.createUserWithEmailAndPassword(sa, email(u), p);
+    await F.setDoc(F.doc(db, 'users', cred.user.uid), { username: u, name, admin });
+    await Au.signOut(sa);
+  }
+  save(st) { try { localStorage.setItem(KEY, JSON.stringify({ sideOpen: st.sideOpen, projOpen: st.projOpen, view: st.view, projectId: st.projectId, stageId: st.stageId, meetingId: st.meetingId, data: this.fb ? undefined : st.data })); } catch (e) {} }
+  go(patch) { this.setState(patch, () => this.save(this.state)); }
+  upd(fn, extra, logText) { this.setState(s => { const data = JSON.parse(JSON.stringify(s.data)); fn(data); if (logText && s.session && !this.fb) { data.log = [{ id: uid(), at: new Date().toISOString(), u: s.session.u, name: s.session.name, text: logText }, ...(data.log || [])].slice(0, 1000); } return { data, ...(extra || {}) }; }, () => { this.save(this.state); if (this.fb) { this.push(this.state.data); if (logText) this.logAct(logText); } }); }
+  componentWillUnmount() { clearInterval(this.timer); }
+  pct(p) { let a = 0, d = 0; p.stages.forEach(s => s.tasks.forEach(t => { a++; if (t.status === 'done') d++; })); return { all: a, done: d, pct: a ? Math.round(d / a * 100) : 0 }; }
+
+  renderVals() {
+    const s = this.state, D = s.data;
+    const users = D.users || DEFAULT_USERS, sess = s.session, isAdmin = !!(sess && sess.admin);
+    const tagFor = pc => pc === 100 ? ['Yayında', '#DDEEDF', '#2F7446'] : pc === 0 ? ['Yeni', '#ECE7DC', '#5E584E'] : ['Sürüyor', '#FBE3D6', '#B2431D'];
+    const openProject = p => this.go({ view: 'project', projectId: p.id, stageId: p.stages[0] ? p.stages[0].id : null });
+    const curP = D.projects.find(x => x.id === s.projectId);
+    const sec = s.view === 'project' ? (curP && this.isArch(curP) ? 'archive' : 'projects') : s.view === 'meeting' ? 'meetings' : s.view;
+    const navDef = [['projects', 'Projeler', D.projects.filter(p => !this.isArch(p)).length, '#E8641C', '3px'], ['products', 'Ürünler & Takvim', D.products.length, '#F2A516', '50%'], ['ideas', 'Fikir Atlası', D.ideas.length, '#3E9E8F', '50%'], ['meetings', 'Toplantılar', D.meetings.length, '#5B7FC7', '3px'], ['archive', 'Arşiv', D.projects.filter(p => this.isArch(p)).length, '#9E978A', '2px']];
+    if (isAdmin) navDef.push(['logs', 'Kayıtlar', (D.log || []).length, '#756F64', '50%']);
+    const nav = navDef.map(([k, label, count, dot, shape]) => {
+      const on = sec === k;
+      return { label, count, dot, shape, onClick: () => this.go({ view: k }), bg: on ? '#302C26' : 'transparent', color: on ? '#FFFFFF' : '#C9C2B3', countColor: on ? '#F2A516' : '#8C8577', size: k === 'projects' ? '16px' : '14px', hasSub: k === 'projects' && s.sideOpen, showSub: k === 'projects' && s.sideOpen && s.projOpen };
+    });
+    const navProjects = D.projects.filter(p => !this.isArch(p)).map((p, i) => ({ dot: PC[i % PC.length], name: p.name, pct: this.pct(p).pct + '%', onClick: () => openProject(p), color: s.view === 'project' && s.projectId === p.id ? '#FFFFFF' : '#9E978A' }));
+
+    let totA = 0, totD = 0;
+    const projectCards = D.projects.map((p, i) => {
+      const r = this.pct(p); totA += r.all; totD += r.done; const [tag, tagBg, tagColor] = tagFor(r.pct);
+      return { arch: r.all > 0 && r.pct === 100, name: p.name, sub: p.sub + ' · ' + p.stages.length + ' aşama', code: 'BK-' + String(i + 1).padStart(3, '0'), opened: fmt(p.opened), pct: r.pct, barW: r.pct + '%', color: PC[i % PC.length], soft: PS[i % PS.length], ink: PI[i % PI.length], tag, tagBg, tagColor, onClick: () => openProject(p) };
+    });
+
+    const out = {
+      sideOpen: s.sideOpen, sideW: s.sideOpen ? '272px' : '84px', logoW: s.sideOpen ? '220px' : '46px', logoBoxH: s.sideOpen ? '34px' : '46px', logoH: s.sideOpen ? '34px' : '60px', logoML: s.sideOpen ? '0px' : '-226px', logoMT: s.sideOpen ? '0px' : '-16px', toggleIcon: s.sideOpen ? '‹' : '›', toggleRight: s.sideOpen ? '14px' : '28px', toggleTop: s.sideOpen ? '84px' : '92px', projRot: s.projOpen ? '0deg' : '-90deg',
+      toggleSide: () => this.go({ sideOpen: !s.sideOpen }), toggleProj: () => this.go({ projOpen: !s.projOpen }),
+      nav, navProjects, projectCards: projectCards.filter(x => !x.arch), overallPct: (totA ? Math.round(totD / totA * 100) : 0) + '%',
+      isProjects: s.view === 'projects', isProject: s.view === 'project', isProducts: s.view === 'products', isIdeas: s.view === 'ideas', isMeetings: s.view === 'meetings', isMeeting: s.view === 'meeting',
+      goProjects: () => this.go({ view: 'projects' }), goMeetings: () => this.go({ view: 'meetings' }),
+      addProject: () => { const p = { id: uid(), name: 'Yeni proje', sub: 'Açıklama', opened: today(), stages: [] }; this.upd(d => d.projects.unshift(p), { view: 'project', projectId: p.id, stageId: null }, 'Yeni proje açtı'); },
+      drawerOpen: false
+    };
+    const login = asAdmin => { if (this.fb) return this.loginFb(asAdmin); const u = users.find(x => x.u === s.loginU.trim().toLowerCase() && x.p === s.loginP); if (!u) return this.setState({ loginErr: 'Kullanıcı adı ya da şifre hatalı.' }); if (asAdmin && !u.admin) return this.setState({ loginErr: 'Bu hesabın admin yetkisi yok.' }); const now = new Date().toISOString(); this.upd(d => { d.stats = d.stats || {}; if (!asAdmin || !sess) { const st = d.stats[u.u] = d.stats[u.u] || { logins: 0, minutes: 0, last: '' }; st.logins++; st.last = now; } d.log = [{ id: uid(), at: now, u: u.u, name: u.name, text: asAdmin && sess ? 'Admin kilidini açtı' : 'Giriş yaptı' }, ...(d.log || [])].slice(0, 1000); }); this.setSession({ u: u.u, name: u.name, admin: !!u.admin, acctAdmin: !!u.admin }); };
+    const archived = D.projects.filter(p => this.isArch(p));
+    Object.assign(out, {
+      locked: !sess, loggedIn: !!sess, isAdmin, isArchive: s.view === 'archive',
+      loginU: s.loginU, loginP: s.loginP, loginErr: s.loginErr,
+      onLoginU: e => this.setState({ loginU: e.target.value, loginErr: '' }), onLoginP: e => this.setState({ loginP: e.target.value, loginErr: '' }),
+      doLogin: () => login(false), loginKey: e => { if (e.key === 'Enter') login(false); },
+      doAdmin: () => login(true), adminKey: e => { if (e.key === 'Enter') login(true); },
+      adminModal: s.adminModal, closeAdmin: () => this.setState({ adminModal: false, loginU: '', loginP: '', loginErr: '' }),
+      userName: sess ? sess.name : '', userIni: sess ? ini(sess.name) : '', userRole: isAdmin ? 'Admin' : 'Ekip',
+      logout: () => this.logout(),
+      loginBtn: s.booting ? 'Bağlanıyor…' : s.loginBusy ? 'Giriş yapılıyor…' : 'Giriş yap',
+      modeNote: s.fbMode ? 'Hesabın yoksa yöneticinden kullanıcı adı ve şifre iste.' : 'Demo modu: Firebase bağlı değil, veriler yalnızca bu tarayıcıda tutuluyor.',
+      lockTitle: isAdmin ? 'Admin kilidini kapat' : 'Admin girişi', lockBg: isAdmin ? '#F28A1E' : 'transparent', lockColor: isAdmin ? '#211E1A' : '#B9B2A4',
+      onLock: () => { if (isAdmin) { if (sess.acctAdmin) this.logout(); else this.setSession({ ...sess, admin: false }); } else this.setState({ adminModal: true, loginU: '', loginP: '', loginErr: '' }); },
+      settingsOpen: s.settingsOpen && isAdmin, openSettings: () => this.setState({ settingsOpen: true, nuErr: '' }), closeSettings: () => this.setState({ settingsOpen: false }),
+      usersList: users.map((u, ui) => ({ name: u.name, u: u.u, ini: ini(u.name), bg: u.admin ? '#F28A1E' : '#F1EADD', role: u.admin ? 'Admin' : 'Ekip', roleBg: u.admin ? '#FBE3D6' : '#ECE7DC', roleColor: u.admin ? '#B2431D' : '#5E584E', can: isAdmin && u.u !== 'yaman', onDelete: () => { if (this.fb) { const { F, db } = this.fb; F.deleteDoc(F.doc(db, 'users', u.uid)).then(() => this.logAct('Kullanıcıyı kaldırdı: ' + u.name)); return; } this.upd(d => { d.users.splice(ui, 1); }, null, 'Kullanıcıyı kaldırdı: ' + u.name); } })),
+      nuName: s.nuName, nuU: s.nuU, nuP: s.nuP, nuErr: s.nuErr,
+      onNuName: e => this.setState({ nuName: e.target.value, nuErr: '' }), onNuU: e => this.setState({ nuU: e.target.value, nuErr: '' }), onNuP: e => this.setState({ nuP: e.target.value, nuErr: '' }),
+      nuRoles: [[false, 'Ekip'], [true, 'Admin']].map(([v, label]) => ({ label, bg: s.nuAdmin === v ? '#FFFFFF' : 'transparent', color: s.nuAdmin === v ? '#211E1A' : '#756F64', onClick: () => this.setState({ nuAdmin: v }) })),
+      addUser: () => { const u = s.nuU.trim().toLowerCase(); if (!s.nuName.trim() || !u || !s.nuP) return this.setState({ nuErr: 'Ad, kullanıcı adı ve şifre gerekli.' }); if (users.some(x => x.u === u)) return this.setState({ nuErr: 'Bu kullanıcı adı zaten var.' }); if (!/^[a-z0-9._-]+$/.test(u)) return this.setState({ nuErr: 'Kullanıcı adında Türkçe karakter ve boşluk olmasın (ör. elif.aydin).' }); if (this.fb) { if (s.nuP.length < 6) return this.setState({ nuErr: 'Şifre en az 6 karakter olmalı.' }); const nm = s.nuName.trim(); this.setState({ nuErr: 'Ekleniyor…' }); this.addUserFb(nm, u, s.nuP, s.nuAdmin).then(() => { this.setState({ nuName: '', nuU: '', nuP: '', nuAdmin: false, nuErr: '' }); this.logAct('Yeni kullanıcı ekledi: ' + nm); }).catch(e => this.setState({ nuErr: ERR(e) })); return; } this.upd(d => { d.users = d.users || []; d.users.push({ id: uid(), name: s.nuName.trim(), u, p: s.nuP, admin: s.nuAdmin }); }, { nuName: '', nuU: '', nuP: '', nuAdmin: false }, 'Yeni kullanıcı ekledi: ' + s.nuName.trim()); },
+      isLogs: s.view === 'logs' && isAdmin,
+      userStats: users.map(u => { const st = (D.stats || {})[u.u] || {}; const m = st.minutes || 0; const at = st.last ? new Date(st.last) : null; return { name: u.name, u: u.u, ini: ini(u.name), bg: u.admin ? '#F28A1E' : '#F1EADD', role: u.admin ? 'Admin' : 'Ekip', time: m >= 60 ? Math.floor(m / 60) + ' sa ' + (m % 60) + ' dk' : m + ' dk', logins: st.logins || 0, last: at ? at.getDate() + ' ' + MON[at.getMonth()] + ' · ' + String(at.getHours()).padStart(2, '0') + ':' + String(at.getMinutes()).padStart(2, '0') : '—' }; }),
+      logEmpty: !(D.log || []).length,
+      logGroups: (() => { const g = []; (D.log || []).slice().sort((a, b) => b.at.localeCompare(a.at)).forEach(l => { const dt = new Date(l.at); const key = dt.getFullYear() + '-' + dt.getMonth() + '-' + dt.getDate(); let last = g[g.length - 1]; if (!last || last.key !== key) { last = { key, day: dt.getDate() + ' ' + MON[dt.getMonth()] + ' ' + dt.getFullYear(), rows: [] }; g.push(last); } last.rows.push({ time: String(dt.getHours()).padStart(2, '0') + ':' + String(dt.getMinutes()).padStart(2, '0'), name: l.name, ini: ini(l.name), text: l.text }); }); return g; })(),
+      archiveEmpty: archived.length === 0,
+      archiveCards: archived.map(p => { const cl = []; p.stages.forEach(st => st.tasks.forEach(t => { if (t.closed) cl.push(t.closed); })); cl.sort(); return { name: p.name, sub: p.sub, stages: p.stages.length + ' aşama · ' + this.pct(p).all + ' iş', opened: fmt(p.opened), finished: fmt(cl[cl.length - 1]), onClick: () => this.go({ view: 'project', projectId: p.id, stageId: p.stages[0] ? p.stages[0].id : null }) }; })
+    });
+
+    const p = D.projects.find(x => x.id === s.projectId);
+    if (s.view === 'project' && p) {
+      const pi = D.projects.indexOf(p), r = this.pct(p);
+      const stage = p.stages.find(x => x.id === s.stageId) || p.stages[0];
+      const si = stage ? p.stages.indexOf(stage) : -1;
+      const updP = fn => this.upd(d => fn(d.projects[pi]));
+      out.pd = { back: () => this.go({ view: this.isArch(p) ? 'archive' : 'projects' }), backLabel: this.isArch(p) ? '← Arşiv' : '← Projeler', name: p.name, opened: fmt(p.opened), pct: r.pct, taskStat: r.done + ' / ' + r.all, onName: e => { const v = e.target.value; updP(x => { x.name = v; }); } };
+      out.stageBars = p.stages.map((st, i) => { const dn = st.tasks.filter(t => t.status === 'done').length; return { color: PC[i % PC.length], flex: Math.max(st.tasks.length, 1), w: (st.tasks.length ? dn / st.tasks.length * 100 : 0) + '%' }; });
+      out.stages = p.stages.map((st, i) => {
+        const on = stage && st.id === stage.id, dn = st.tasks.filter(t => t.status === 'done').length;
+        return { name: st.name, num: String(i + 1).padStart(2, '0'), stat: dn + '/' + st.tasks.length, w: (st.tasks.length ? dn / st.tasks.length * 100 : 0) + '%', onClick: () => this.go({ stageId: st.id }), bg: on ? '#211E1A' : '#FFFFFF', color: on ? '#FFFFFF' : '#1F1B16', border: on ? '#211E1A' : '#ECE2D0', track: on ? '#4A443B' : '#F1EADD', fill: PC[i % PC.length] };
+      });
+      out.newStage = s.newStage;
+      out.onNewStage = e => this.setState({ newStage: e.target.value });
+      const addStage = () => { const n = s.newStage.trim(); if (!n) return; const st = { id: uid(), name: n, tasks: [] }; this.upd(d => d.projects[pi].stages.push(st), { newStage: '', stageId: st.id }, '“' + p.name + '” projesine “' + n + '” aşamasını ekledi'); };
+      out.addStage = addStage; out.stageKey = e => { if (e.key === 'Enter') addStage(); };
+      out.stageName = stage ? stage.name : 'Aşama ekleyin';
+      out.stageEyebrow = stage ? 'Aşama ' + String(si + 1).padStart(2, '0') + ' · ' + stage.tasks.length + ' iş' : 'Henüz aşama yok';
+      out.addTask = () => { if (!stage) return; const t = T('Yeni iş', '', 'todo', today(), '', ''); this.upd(d => d.projects[pi].stages[si].tasks.push(t), { taskId: t.id }, '“' + p.name + ' / ' + stage.name + '” aşamasına iş ekledi'); };
+      out.tasks = stage ? stage.tasks.map((t, i) => ({ num: String(i + 1).padStart(2, '0'), title: t.title, desc: t.desc || 'Açıklama eklenmedi.', owner: t.owner || 'Atanmadı', ini: ini(t.owner), opened: fmt(t.opened), due: fmt(t.due), closed: fmt(t.closed), sLabel: ST[t.status].label, sBg: ST[t.status].bg, sColor: ST[t.status].color, deco: t.status === 'done' ? 'line-through' : 'none', onClick: () => this.setState({ taskId: t.id }) })) : [];
+      out.noTasks = !!stage && stage.tasks.length === 0;
+      const task = stage && stage.tasks.find(t => t.id === s.taskId);
+      if (task) {
+        const ti = stage.tasks.indexOf(task);
+        const set = k => e => { const v = e.target.value; this.upd(d => { d.projects[pi].stages[si].tasks[ti][k] = v; }); };
+        out.drawerOpen = true;
+        out.dr = {
+          can: isAdmin, crumb: p.name + ' / ' + stage.name, title: task.title, desc: task.desc, owner: task.owner, opened: task.opened, due: task.due, closed: task.closed,
+          onTitle: set('title'), onDesc: set('desc'), onOwner: set('owner'), onOpened: set('opened'), onDue: set('due'), onClosed: set('closed'),
+          statuses: Object.keys(ST).map(k => ({ label: ST[k].label, bg: task.status === k ? '#FFFEFA' : 'transparent', color: task.status === k ? ST[k].color : '#756F64', shadow: task.status === k ? '0 1px 3px rgba(27,25,21,.15)' : 'none', onClick: () => this.upd(d => { const t = d.projects[pi].stages[si].tasks[ti]; t.status = k; if (k === 'done' && !t.closed) t.closed = today(); if (k !== 'done') t.closed = ''; }, null, '“' + p.name + '” projesinde “' + task.title + '” işini “' + ST[k].label + '” yaptı') })),
+          onDelete: () => this.upd(d => d.projects[pi].stages[si].tasks.splice(ti, 1), { taskId: null }, '“' + p.name + '” projesinden “' + task.title + '” işini sildi')
+        };
+      }
+    }
+    out.closeDrawer = () => this.setState({ taskId: null });
+
+    if (s.view === 'products') {
+      const n = D.columns.length;
+      out.gridCols = '260px repeat(' + n + ', minmax(150px,1fr))';
+      out.columns = D.columns.map((c, ci) => ({ can: isAdmin, name: c.name, color: COLS[ci % COLS.length], onName: e => { const v = e.target.value; this.upd(d => { d.columns[ci].name = v; }); }, onRemove: () => this.upd(d => { d.columns.splice(ci, 1); d.products.forEach(r => r.dates.splice(ci, 1)); }, null, 'Takvimden “' + c.name + '” sütununu sildi') }));
+      out.rows = D.products.map((r, ri) => ({ name: r.name, cat: r.cat, onName: e => { const v = e.target.value; this.upd(d => { d.products[ri].name = v; }); }, cells: D.columns.map((c, ci) => ({ value: r.dates[ci] || '', color: r.dates[ci] ? '#1F1B16' : '#B8B0A0', onChange: e => { const v = e.target.value; this.upd(d => { d.products[ri].dates[ci] = v; }); } })) }));
+      out.addColumn = () => this.upd(d => { d.columns.push({ id: uid(), name: 'Yeni aşama' }); d.products.forEach(r => r.dates.push('')); }, null, 'Takvime yeni sütun ekledi');
+      out.addRow = () => this.upd(d => d.products.unshift({ id: uid(), name: 'Yeni ürün', cat: 'Eğitici Oyun', dates: d.columns.map(() => '') }), null, 'Takvime yeni ürün ekledi');
+      const Y0 = new Date('2026-01-01T00:00'), span = 365 * 864e5;
+      const pos = dt => Math.max(0, Math.min(100, (new Date(dt + 'T00:00') - Y0) / span * 100));
+      const nowM = new Date().getMonth();
+      out.months = MON.map((m, i) => ({ label: m, color: i === nowM ? '#E8641C' : '#756F64' }));
+      out.todayLeft = pos(today()) + '%';
+      out.gantt = D.products.map(r => {
+        const ds = r.dates.map((d, ci) => ({ d, ci })).filter(x => x.d);
+        const ps = ds.map(x => pos(x.d)); const mn = ps.length ? Math.min(...ps) : 0, mx = ps.length ? Math.max(...ps) : 0;
+        return { name: r.name, left: mn + '%', width: (mx - mn) + '%', marks: ds.map(x => ({ left: pos(x.d) + '%', color: COLS[x.ci % COLS.length], title: (D.columns[x.ci] || {}).name + ' · ' + fmt(x.d) })) };
+      });
+    }
+
+    if (s.view === 'ideas') {
+      const rots = [-2.2, 1.6, -0.8, 2.4, -1.6, 0.9, -2.8, 1.2];
+      out.ideas = D.ideas.map((i, ii) => ({ can: isAdmin, text: i.text, bg: NOTE[i.color % NOTE.length], rot: rots[ii % rots.length] + 'deg', date: fmt(i.date), onText: e => { const v = e.target.value; this.upd(d => { d.ideas[ii].text = v; }); }, onDelete: () => this.upd(d => d.ideas.splice(ii, 1), null, 'Fikir Atlası’ndan not kaldırdı: ' + i.text) }));
+      out.newIdea = s.newIdea; out.onNewIdea = e => this.setState({ newIdea: e.target.value });
+      const addIdea = () => { const t = s.newIdea.trim(); if (!t) return; this.upd(d => d.ideas.unshift({ id: uid(), text: t, color: s.ideaColor, date: today() }), { newIdea: '' }, 'Fikir Atlası’na not ekledi: ' + t); };
+      out.addIdea = addIdea; out.ideaKey = e => { if (e.key === 'Enter') addIdea(); };
+      out.ideaColors = NOTE.map((c, ci) => ({ bg: c, ring: s.ideaColor === ci ? '#1F1B16' : 'transparent', onClick: () => this.setState({ ideaColor: ci }) }));
+    }
+
+    const mStat = m => { const a = m.decisions.length, d = m.decisions.filter(x => x.done).length; return { a, d, pct: a ? Math.round(d / a * 100) : 0 }; };
+    if (s.view === 'meetings') {
+      out.meetings = [...D.meetings].sort((a, b) => b.date.localeCompare(a.date)).map((m, mi2) => {
+        const r = mStat(m), x = new Date(m.date + 'T00:00');
+        return { dayColor: '#1F1B16', day: String(x.getDate()).padStart(2, '0'), mon: MON[x.getMonth()] + ' ' + x.getFullYear(), title: m.title, meta: m.people, stat: r.d + ' / ' + r.a + ' karar', pct: r.pct, barW: r.pct + '%', barColor: r.pct === 100 ? '#3E9E8F' : '#E8641C', onClick: () => this.go({ view: 'meeting', meetingId: m.id }) };
+      });
+      out.addMeeting = () => { const m = { id: uid(), date: today(), title: 'Yeni toplantı', people: '', decisions: [] }; this.upd(d => d.meetings.push(m), { view: 'meeting', meetingId: m.id }, 'Yeni toplantı açtı'); };
+    }
+    const m = D.meetings.find(x => x.id === s.meetingId);
+    if (s.view === 'meeting' && m) {
+      const mi = D.meetings.indexOf(m), r = mStat(m);
+      const set = k => e => { const v = e.target.value; this.upd(d => { d.meetings[mi][k] = v; }); };
+      out.md = { date: m.date, title: m.title, people: m.people, pct: r.pct, stat: r.d + ' / ' + r.a + ' bitti', onDate: set('date'), onTitle: set('title'), onPeople: set('people') };
+      out.decisions = m.decisions.map((d, di) => ({ can: isAdmin, num: String(di + 1).padStart(2, '0'), text: d.text, done: d.done, check: d.done ? '✓' : '', boxBg: d.done ? '#2F7446' : 'transparent', boxBorder: d.done ? '#2F7446' : '#9A9385', color: d.done ? '#9A9385' : '#1F1B16', deco: d.done ? 'line-through' : 'none',
+        onToggle: () => this.upd(x => { x.meetings[mi].decisions[di].done = !d.done; }, null, (d.done ? 'Kararı yeniden açtı: ' : 'Kararı bitirdi: ') + d.text), onText: e => { const v = e.target.value; this.upd(x => { x.meetings[mi].decisions[di].text = v; }); }, onDelete: () => this.upd(x => x.meetings[mi].decisions.splice(di, 1), null, 'Toplantıdan kararı sildi: ' + d.text) }));
+      out.nextNum = String(m.decisions.length + 1).padStart(2, '0');
+      out.newDecision = s.newDecision; out.onNewDecision = e => this.setState({ newDecision: e.target.value });
+      out.decisionKey = e => { if (e.key !== 'Enter') return; const t = s.newDecision.trim(); if (!t) return; this.upd(x => x.meetings[mi].decisions.push({ id: uid(), text: t, done: false }), { newDecision: '' }, '“' + m.title + '” toplantısına karar ekledi: ' + t); };
+    }
+    return out;
+  }
+}
+</script>
+</body>
+</html>

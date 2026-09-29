@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function signedIn() { return request.auth != null; }
+    function member() { return signedIn() && exists(/databases/$(db)/documents/users/$(request.auth.uid)); }
+    function isAdmin() { return member() && get(/databases/$(db)/documents/users/$(request.auth.uid)).data.admin == true; }
+
+    // Kullanıcılar: herkes listeyi görür, yalnızca admin ekler/değiştirir/kaldırır.
+    // İlk kurulum: yaman hesabı kendi admin kaydını bir kez oluşturabilir.
+    match /users/{uid} {
+      allow read: if member() || (signedIn() && request.auth.uid == uid);
+      allow create: if isAdmin() || (signedIn() && request.auth.uid == uid && request.auth.token.email == 'yaman@bikutuoyun.panel');
+      allow update, delete: if isAdmin();
+    }
+
+    // Projeler, takvim, fikirler, toplantılar
+    match /panel/{section} {
+      allow read, create, update: if member();
+      allow delete: if isAdmin();
+    }
+
+    // Kullanım istatistikleri: herkes kendi sayacını artırır, yalnızca admin okur.
+    match /stats/{username} {
+      allow read: if isAdmin();
+      allow create, update: if member();
+    }
+
+    // İşlem kayıtları: herkes ekler, yalnızca admin okur, kimse değiştiremez/silemez.
+    match /log/{id} {
+      allow read: if isAdmin();
+      allow create: if member();
+      allow update, delete: if false;
+    }
+  }
+}
