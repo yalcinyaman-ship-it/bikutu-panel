@@ -25,6 +25,12 @@ service cloud.firestore {
       allow create, update: if member();
     }
 
+    // Bildirimler: herkes okur ve ekler, kimse değiştiremez/silemez.
+    match /notify/{id} {
+      allow read, create: if member();
+      allow update, delete: if false;
+    }
+
     // İşlem kayıtları: herkes ekler, yalnızca admin okur, kimse değiştiremez/silemez.
     match /log/{id} {
       allow read: if isAdmin();

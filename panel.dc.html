@@ -104,6 +104,44 @@ input:focus,textarea:focus{outline:none}
 </aside>
 
 <main style="min-width:0;padding:44px 56px 80px">
+<div style="position:relative;z-index:15;display:flex;justify-content:flex-end;align-items:center;gap:10px;flex-wrap:wrap;margin:-22px 0 18px">
+  <sc-if value="{{ hasLastAssign }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ la.onClick }}" style="display:flex;align-items:center;gap:8px;min-width:0;max-width:440px;border:1px solid #ECE2D0;background:#FFFFFF;border-radius:999px;padding:9px 16px;cursor:pointer;font-size:13px;text-align:left" style-hover="border-color:#E8641C">
+      <span style="flex-shrink:0;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.12em;color:#E0671A;text-transform:uppercase;font-weight:600">Sana son atanan</span>
+      <span style="min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500">{{ la.title }}</span>
+      <span style="flex-shrink:0;color:#9E978A">{{ la.when }}</span>
+    </button>
+  </sc-if>
+  <button onClick="{{ toggleNotif }}" style="display:flex;align-items:center;gap:10px;border:none;background:#211E1A;color:#FAF5EC;border-radius:999px;padding:7px 7px 7px 16px;cursor:pointer;font-size:13px;font-weight:600" style-hover="background:#35302A">
+    <span>Bildirimler</span>
+    <span style="min-width:26px;height:26px;padding:0 8px;border-radius:999px;background:{{ badgeBg }};color:{{ badgeColor }};display:grid;place-items:center;font-size:12px;font-weight:700">{{ unread }}</span>
+  </button>
+  <sc-if value="{{ notifOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeNotif }}" style="position:fixed;inset:0;z-index:0"></div>
+    <div style="position:absolute;top:50px;right:0;z-index:1;width:min(420px,88vw);max-height:70vh;overflow-y:auto;background:#FFFFFF;border:1px solid #ECE2D0;border-radius:18px;box-shadow:0 30px 60px -28px rgba(27,25,21,.45)">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:18px 20px 12px;border-bottom:1px solid #F1EADD">
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:22px">Bildirimler</span>
+        <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.12em;color:#756F64;text-transform:uppercase">{{ notifSub }}</span>
+      </div>
+      <sc-if value="{{ notifEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:36px 20px;text-align:center;color:#756F64;font-size:14px">Henüz bildirim yok.</div>
+      </sc-if>
+      <sc-for list="{{ notifs }}" as="nf" hint-placeholder-count="4">
+        <button onClick="{{ nf.onClick }}" style="display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;border:none;border-bottom:1px solid #F4EEE3;background:{{ nf.bg }};padding:14px 20px;cursor:{{ nf.cursor }}" style-hover="background:#FFF7EC">
+          <span style="width:30px;height:30px;flex-shrink:0;border-radius:50%;background:{{ nf.avBg }};display:grid;place-items:center;font-size:11px;font-weight:700;color:#211E1A">{{ nf.ini }}</span>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px">
+            <span style="font-size:14px;line-height:1.45;text-wrap:pretty"><strong style="font-weight:600">{{ nf.name }}</strong> {{ nf.text }}</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#9E978A">{{ nf.time }}</span>
+              <sc-if value="{{ nf.forMe }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;padding:3px 7px;border-radius:999px;background:#FBE3D6;color:#B2431D;font-weight:600">Sana</span></sc-if>
+            </div>
+          </div>
+          <sc-if value="{{ nf.isNew }}" hint-placeholder-val="{{ false }}"><span style="width:8px;height:8px;margin-top:6px;flex-shrink:0;border-radius:50%;background:#E8641C"></span></sc-if>
+        </button>
+      </sc-for>
+    </div>
+  </sc-if>
+</div>
 
 <sc-if value="{{ isProjects }}" hint-placeholder-val="{{ true }}">
   <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid #ECE2D0;margin-bottom:32px">
@@ -297,10 +335,10 @@ input:focus,textarea:focus{outline:none}
     <div style="display:flex;flex-direction:column;gap:10px">
       <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#E0671A;text-transform:uppercase;font-weight:600">03 — Fikir Atlası</span>
       <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:68px;line-height:0.95;letter-spacing:-0.02em">Akılda kalsın</h1>
-      <span style="font-size:16px;color:#756F64">Aklına geleni yapıştır; güzel fikirler kaybolmasın.</span>
+      <span style="font-size:16px;color:#756F64">Notu üstündeki noktalardan tutup sürükle; rengini değiştir, istersen listeye çevir.</span>
     </div>
     <div style="display:flex;align-items:center;gap:10px;background:#FFFFFF;border:1px solid #ECE2D0;border-radius:999px;padding:6px 6px 6px 18px;width:min(520px,100%)">
-      <input value="{{ newIdea }}" onChange="{{ onNewIdea }}" onKeyDown="{{ ideaKey }}" placeholder="Bir fikir yaz, Enter’a bas…" style="flex:1;min-width:0;border:none;background:transparent;font-size:14px;padding:8px 0"></input>
+      <input value="{{ newIdea }}" onChange="{{ onNewIdea }}" onKeyDown="{{ ideaKey }}" placeholder="Başlık yaz, Enter’a bas…" style="flex:1;min-width:0;border:none;background:transparent;font-size:14px;padding:8px 0"></input>
       <div style="display:flex;gap:4px">
         <sc-for list="{{ ideaColors }}" as="ic" hint-placeholder-count="5">
           <button onClick="{{ ic.onClick }}" style="width:22px;height:22px;border-radius:50%;cursor:pointer;background:{{ ic.bg }};border:2px solid {{ ic.ring }}"></button>
@@ -309,17 +347,49 @@ input:focus,textarea:focus{outline:none}
       <button onClick="{{ addIdea }}" style="border:none;cursor:pointer;background:#1F1B16;color:#FAF5EC;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:500;white-space:nowrap" style-hover="background:#E8641C">Yapıştır</button>
     </div>
   </header>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:34px 28px;padding:10px 6px">
-    <sc-for list="{{ ideas }}" as="i" hint-placeholder-count="8">
-      <div style="position:relative;display:flex;flex-direction:column;min-height:230px;padding:30px 22px 16px;background:{{ i.bg }};transform:rotate({{ i.rot }});box-shadow:0 1px 0 rgba(0,0,0,.04),0 14px 24px -14px rgba(27,25,21,.35);transition:transform .2s" style-hover="transform:rotate(0deg) scale(1.02)">
-        <span style="position:absolute;top:-9px;left:50%;width:74px;height:20px;margin-left:-37px;background:rgba(255,255,255,.55);transform:rotate(-3deg)"></span>
-        <textarea value="{{ i.text }}" onChange="{{ i.onText }}" style="flex:1;border:none;background:transparent;resize:none;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:24px;line-height:1.2;color:#1F1B16;padding:0"></textarea>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px">
-          <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.1em;color:rgba(27,25,21,.55)">{{ i.date }}</span>
-          <sc-if value="{{ i.can }}" hint-placeholder-val="{{ false }}"><button onClick="{{ i.onDelete }}" style="border:none;background:transparent;cursor:pointer;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.1em;color:rgba(27,25,21,.5);text-transform:uppercase" style-hover="color:#1F1B16">Kaldır</button></sc-if>
+  <div style="overflow:auto;border:1px solid #ECE2D0;border-radius:18px;background-color:#F4EDE0;background-image:radial-gradient(#DDD1BC 1.2px,transparent 1.2px);background-size:24px 24px;max-height:calc(100vh - 120px)">
+    <div style="position:relative;min-width:100%;width:{{ boardW }};height:{{ boardH }}">
+      <sc-for list="{{ ideas }}" as="i" hint-placeholder-count="6">
+        <div style="position:absolute;left:{{ i.x }};top:{{ i.y }};z-index:{{ i.z }};width:256px;display:flex;flex-direction:column;background:{{ i.bg }};transform:rotate({{ i.rot }});box-shadow:{{ i.shadow }};transition:{{ i.tr }}">
+          <div onPointerDown="{{ i.onDown }}" title="Tutup sürükle" style="position:relative;height:30px;cursor:{{ i.cursor }};touch-action:none;display:flex;justify-content:center;align-items:flex-end;user-select:none">
+            <span style="position:absolute;top:-9px;left:50%;width:74px;height:20px;margin-left:-37px;background:rgba(255,255,255,.55);transform:rotate(-3deg);pointer-events:none"></span>
+            <span style="display:grid;grid-template-columns:repeat(3,4px);gap:3px;pointer-events:none"><span style="width:4px;height:4px;border-radius:50%;background:rgba(27,25,21,.3)"></span><span style="width:4px;height:4px;border-radius:50%;background:rgba(27,25,21,.3)"></span><span style="width:4px;height:4px;border-radius:50%;background:rgba(27,25,21,.3)"></span><span style="width:4px;height:4px;border-radius:50%;background:rgba(27,25,21,.3)"></span><span style="width:4px;height:4px;border-radius:50%;background:rgba(27,25,21,.3)"></span><span style="width:4px;height:4px;border-radius:50%;background:rgba(27,25,21,.3)"></span></span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;padding:10px 20px 14px">
+            <textarea value="{{ i.title }}" onChange="{{ i.onTitle }}" rows="1" placeholder="Başlık" style="border:none;background:transparent;resize:none;field-sizing:content;overflow:hidden;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:22px;line-height:1.15;color:#1F1B16;padding:0"></textarea>
+            <textarea value="{{ i.body }}" onChange="{{ i.onBody }}" rows="2" placeholder="Alt not…" style="border:none;background:transparent;resize:none;field-sizing:content;min-height:40px;overflow:hidden;font-size:14px;line-height:1.5;color:#3F3A32;padding:0"></textarea>
+            <sc-if value="{{ i.hasList }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:4px;padding-top:8px;border-top:1px dashed rgba(27,25,21,.18)">
+                <span style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:0.14em;color:rgba(27,25,21,.55);text-transform:uppercase">Liste · {{ i.listStat }}</span>
+                <sc-for list="{{ i.checks }}" as="c" hint-placeholder-count="2">
+                  <div style="display:flex;align-items:center;gap:8px;min-height:28px">
+                    <button onClick="{{ c.onToggle }}" style="flex-shrink:0;width:18px;height:18px;border-radius:5px;cursor:pointer;border:1.5px solid {{ c.boxBorder }};background:{{ c.boxBg }};color:#FFFEFA;font-size:11px;line-height:1;display:grid;place-items:center;padding:0">{{ c.check }}</button>
+                    <input value="{{ c.text }}" onChange="{{ c.onText }}" style="flex:1;min-width:0;border:none;background:transparent;font-size:13.5px;padding:2px 0;color:{{ c.color }};text-decoration:{{ c.deco }}"></input>
+                    <sc-if value="{{ c.can }}" hint-placeholder-val="{{ false }}"><button onClick="{{ c.onDelete }}" style="flex-shrink:0;border:none;background:transparent;cursor:pointer;color:rgba(27,25,21,.4);font-size:14px;padding:0 2px" style-hover="color:#1F1B16">×</button></sc-if>
+                  </div>
+                </sc-for>
+                <div style="display:flex;align-items:center;gap:8px;min-height:28px">
+                  <span style="flex-shrink:0;width:18px;height:18px;border-radius:5px;border:1.5px dashed rgba(27,25,21,.3)"></span>
+                  <input onKeyDown="{{ i.onAddCheck }}" placeholder="Madde yaz, Enter’a bas" style="flex:1;min-width:0;border:none;background:transparent;font-size:13.5px;padding:2px 0"></input>
+                </div>
+              </div>
+            </sc-if>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:8px">
+              <div style="display:flex;gap:4px">
+                <sc-for list="{{ i.colors }}" as="ic" hint-placeholder-count="5">
+                  <button onClick="{{ ic.onClick }}" title="Rengi değiştir" style="width:16px;height:16px;border-radius:50%;cursor:pointer;padding:0;background:{{ ic.bg }};border:2px solid {{ ic.ring }}"></button>
+                </sc-for>
+              </div>
+              <sc-if value="{{ i.noList }}" hint-placeholder-val="{{ true }}"><button onClick="{{ i.onList }}" style="border:1px solid rgba(27,25,21,.25);background:transparent;border-radius:999px;cursor:pointer;padding:3px 9px;font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:0.1em;color:#3F3A32;text-transform:uppercase" style-hover="background:rgba(255,255,255,.5)">+ Liste</button></sc-if>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.1em;color:rgba(27,25,21,.55)">{{ i.date }}</span>
+              <sc-if value="{{ i.can }}" hint-placeholder-val="{{ false }}"><button onClick="{{ i.onDelete }}" style="border:none;background:transparent;cursor:pointer;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.1em;color:rgba(27,25,21,.5);text-transform:uppercase" style-hover="color:#1F1B16">Kaldır</button></sc-if>
+            </div>
+          </div>
         </div>
-      </div>
-    </sc-for>
+      </sc-for>
+    </div>
   </div>
 </sc-if>
 
@@ -487,7 +557,10 @@ input:focus,textarea:focus{outline:none}
       </div>
       <div style="display:flex;flex-direction:column;gap:8px">
         <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Sorumlu</span>
-        <input value="{{ dr.owner }}" onChange="{{ dr.onOwner }}" placeholder="Kim yapacak?" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-size:14px;padding:13px 16px"></input>
+        <select value="{{ dr.ownerVal }}" onChange="{{ dr.onOwner }}" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-family:inherit;font-size:14px;padding:13px 16px;cursor:pointer">
+          <sc-for list="{{ dr.people }}" as="op" hint-placeholder-count="3"><option value="{{ op.v }}">{{ op.label }}</option></sc-for>
+        </select>
+        <sc-if value="{{ dr.hasAssigned }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:#9E978A">{{ dr.assignedNote }}</span></sc-if>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
         <div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Açılış</span><input type="date" value="{{ dr.opened }}" onChange="{{ dr.onOpened }}" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-family:'Geist Mono',monospace;font-size:12px;padding:12px 10px"></input></div>
@@ -535,7 +608,10 @@ input:focus,textarea:focus{outline:none}
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
         <input value="{{ nuName }}" onChange="{{ onNuName }}" placeholder="Ad soyad" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-size:15px;padding:14px 16px;width:100%"></input>
         <input value="{{ nuU }}" onChange="{{ onNuU }}" placeholder="Kullanıcı adı" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-size:15px;padding:14px 16px;width:100%"></input>
-        <input value="{{ nuP }}" onChange="{{ onNuP }}" placeholder="Şifre" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-size:15px;padding:14px 16px;width:100%"></input>
+        <div style="position:relative">
+          <input type="{{ nuPType }}" value="{{ nuP }}" onChange="{{ onNuP }}" placeholder="Şifre" autocomplete="new-password" style="border:1px solid #ECE2D0;border-radius:12px;background:#FFFEFA;font-size:15px;padding:14px 76px 14px 16px;width:100%"></input>
+          <button onClick="{{ toggleNuP }}" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:#F1EADD;border-radius:8px;padding:7px 9px;cursor:pointer;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#5E584E" style-hover="background:#E6DCC9">{{ nuPLabel }}</button>
+        </div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
         <div style="display:flex;gap:4px;padding:4px;background:#F1EADD;border-radius:12px">
@@ -546,6 +622,12 @@ input:focus,textarea:focus{outline:none}
         <button onClick="{{ addUser }}" style="border:none;cursor:pointer;background:#211E1A;color:#FAF5EC;padding:13px 22px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap" style-hover="background:#E8641C">+ Kullanıcı ekle</button>
       </div>
       <sc-if value="{{ nuErr }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#B2431D">{{ nuErr }}</span></sc-if>
+      <sc-if value="{{ hasNuDone }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:12px;background:#DDEEDF;color:#1F4D2E">
+          <span style="font-size:13px;font-weight:600">{{ nuDone.name }} eklendi. Giriş bilgilerini kendisine ilet:</span>
+          <span style="font-family:'Geist Mono',monospace;font-size:13px">Kullanıcı adı: {{ nuDone.u }} · Şifre: {{ nuDone.p }}</span>
+        </div>
+      </sc-if>
       <span style="font-size:12px;color:#756F64;line-height:1.5">Ekip üyeleri her şeyi görebilir, ekleyip düzenleyebilir; hiçbir şeyi silemez. Silme yalnızca admin kilidi açıkken yapılır.</span>
     </div>
   </div>
@@ -576,7 +658,7 @@ const FB_V = '10.12.2', FB_DOMAIN = 'bikutuoyun.panel';
 const email = u => u.trim().toLowerCase() + '@' + FB_DOMAIN;
 const FB_READY = () => { const c = window.BIKUTU_FIREBASE; return !!(c && c.apiKey && !/BURAYA/.test(c.apiKey)); };
 const SECTIONS = { projects: d => ({ items: d.projects }), calendar: d => ({ columns: d.columns, products: d.products }), ideas: d => ({ items: d.ideas }), meetings: d => ({ items: d.meetings }) };
-const EMPTY = () => ({ users: [], stats: {}, log: [], projects: [], columns: ['İşe başlama', 'Tasarım teslim', 'Baskıya giriş', 'Yayın'].map(name => ({ id: uid(), name })), products: [], ideas: [], meetings: [] });
+const EMPTY = () => ({ users: [], stats: {}, log: [], projects: [], columns: ['İşe başlama', 'Tasarım teslim', 'Baskıya giriş', 'Yayın'].map(name => ({ id: uid(), name })), products: [], ideas: [], meetings: [], notify: [] });
 const ERR = e => { const c = (e && e.code) || ''; if (/email-already-in-use/.test(c)) return 'Bu kullanıcı adı daha önce kullanılmış, başka bir ad seç.'; if (/weak-password/.test(c)) return 'Şifre en az 6 karakter olmalı.'; if (/too-many-requests/.test(c)) return 'Çok fazla deneme yapıldı, biraz sonra tekrar dene.'; if (/network/.test(c)) return 'İnternet bağlantısını kontrol et.'; return 'Kullanıcı adı ya da şifre hatalı.'; };
 function seed() {
   const E = 'Elif Aydın', M = 'Mert Kaya', Z = 'Zeynep Arslan', C = 'Can Demir', S = 'Selin Yıldız';
@@ -674,7 +756,20 @@ function seed() {
 }
 
 class Component extends DCLogic {
-  state = { sideOpen: true, projOpen: true, view: 'projects', projectId: null, stageId: null, taskId: null, meetingId: null, data: seed(), newStage: '', newIdea: '', ideaColor: 0, newDecision: '', session: null, loginU: '', loginP: '', loginErr: '', adminModal: false, settingsOpen: false, nuName: '', nuU: '', nuP: '', nuAdmin: false, nuErr: '' };
+  state = { sideOpen: true, projOpen: true, view: 'projects', projectId: null, stageId: null, taskId: null, meetingId: null, data: seed(), newStage: '', newIdea: '', ideaColor: 0, newDecision: '', session: null, loginU: '', loginP: '', loginErr: '', adminModal: false, settingsOpen: false, nuName: '', nuU: '', nuP: '', nuAdmin: false, nuErr: '', nuShow: false, nuDone: null, drag: null, notifOpen: false, notifPrev: '' };
+  readSeen(u) { try { return localStorage.getItem('bikutu-seen-' + u) || ''; } catch (e) { return ''; } }
+  startDrag(e, id, x, y) {
+    if (e.button) return; e.preventDefault();
+    const sx = e.clientX, sy = e.clientY;
+    const move = ev => this.setState({ drag: { id, x: Math.max(0, x + ev.clientX - sx), y: Math.max(0, y + ev.clientY - sy) } });
+    const up = () => {
+      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
+      const dg = this.state.drag; this.setState({ drag: null });
+      if (dg && (dg.x !== x || dg.y !== y)) this.upd(d => { const n = d.ideas.find(q => q.id === id); if (n) { n.x = Math.round(dg.x); n.y = Math.round(dg.y); n.z = Math.max(1, ...d.ideas.map(q => q.z || 1)) + 1; } });
+    };
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
+  }
+  notifyFb(n) { const w = this.state.session; if (!this.fb || !w) return; const { F, db } = this.fb; F.addDoc(F.collection(db, 'notify'), { at: new Date().toISOString(), u: w.u, name: w.name, to: 'all', ...n }).catch(() => {}); }
   isArch(p) { const r = this.pct(p); return r.all > 0 && r.pct === 100; }
   setSession(sess) { this.setState({ session: sess, loginU: '', loginP: '', loginErr: '', adminModal: false }); try { if (sess) localStorage.setItem('bikutu-session', JSON.stringify(sess)); else localStorage.removeItem('bikutu-session'); } catch (e) {} }
   componentDidMount() {
@@ -721,6 +816,7 @@ class Component extends DCLogic {
       this.setState(s => { const d = { ...s.data }; if (k === 'calendar') { d.columns = v.columns || []; d.products = v.products || []; } else d[k] = v.items || []; return { data: d }; });
     })));
     un.push(F.onSnapshot(F.collection(db, 'users'), qs => this.setState(s => ({ data: { ...s.data, users: qs.docs.map(x => ({ uid: x.id, u: x.data().username, name: x.data().name, admin: !!x.data().admin })) } }))));
+    un.push(F.onSnapshot(F.query(F.collection(db, 'notify'), F.orderBy('at', 'desc'), F.limit(80)), qs => this.setState(s => ({ data: { ...s.data, notify: qs.docs.map(x => ({ id: x.id, ...x.data() })) } })), e => console.warn('Bildirimler okunamadı — firestore.rules güncel mi?', e)));
     if (admin) {
       un.push(F.onSnapshot(F.collection(db, 'stats'), qs => { const st = {}; qs.docs.forEach(x => { st[x.id] = x.data(); }); this.setState(s => ({ data: { ...s.data, stats: st } })); }));
       un.push(F.onSnapshot(F.query(F.collection(db, 'log'), F.orderBy('at', 'desc'), F.limit(400)), qs => this.setState(s => ({ data: { ...s.data, log: qs.docs.map(x => ({ id: x.id, ...x.data() })) } }))));
@@ -772,7 +868,7 @@ class Component extends DCLogic {
   }
   save(st) { try { localStorage.setItem(KEY, JSON.stringify({ sideOpen: st.sideOpen, projOpen: st.projOpen, view: st.view, projectId: st.projectId, stageId: st.stageId, meetingId: st.meetingId, data: this.fb ? undefined : st.data })); } catch (e) {} }
   go(patch) { this.setState(patch, () => this.save(this.state)); }
-  upd(fn, extra, logText) { this.setState(s => { const data = JSON.parse(JSON.stringify(s.data)); fn(data); if (logText && s.session && !this.fb) { data.log = [{ id: uid(), at: new Date().toISOString(), u: s.session.u, name: s.session.name, text: logText }, ...(data.log || [])].slice(0, 1000); } return { data, ...(extra || {}) }; }, () => { this.save(this.state); if (this.fb) { this.push(this.state.data); if (logText) this.logAct(logText); } }); }
+  upd(fn, extra, logText, note) { this.setState(s => { const data = JSON.parse(JSON.stringify(s.data)); fn(data); if (logText && s.session && !this.fb) { const at = new Date().toISOString(); data.log = [{ id: uid(), at, u: s.session.u, name: s.session.name, text: logText }, ...(data.log || [])].slice(0, 1000); data.notify = [{ id: uid(), at, u: s.session.u, name: s.session.name, to: 'all', text: logText, ...(note || {}) }, ...(data.notify || [])].slice(0, 200); } return { data, ...(extra || {}) }; }, () => { this.save(this.state); if (this.fb) { this.push(this.state.data); if (logText) { this.logAct(logText); this.notifyFb({ text: logText, ...(note || {}) }); } } }); }
   componentWillUnmount() { clearInterval(this.timer); }
   pct(p) { let a = 0, d = 0; p.stages.forEach(s => s.tasks.forEach(t => { a++; if (t.status === 'done') d++; })); return { all: a, done: d, pct: a ? Math.round(d / a * 100) : 0 }; }
 
@@ -808,6 +904,20 @@ class Component extends DCLogic {
     };
     const login = asAdmin => { if (this.fb) return this.loginFb(asAdmin); const u = users.find(x => x.u === s.loginU.trim().toLowerCase() && x.p === s.loginP); if (!u) return this.setState({ loginErr: 'Kullanıcı adı ya da şifre hatalı.' }); if (asAdmin && !u.admin) return this.setState({ loginErr: 'Bu hesabın admin yetkisi yok.' }); const now = new Date().toISOString(); this.upd(d => { d.stats = d.stats || {}; if (!asAdmin || !sess) { const st = d.stats[u.u] = d.stats[u.u] || { logins: 0, minutes: 0, last: '' }; st.logins++; st.last = now; } d.log = [{ id: uid(), at: now, u: u.u, name: u.name, text: asAdmin && sess ? 'Admin kilidini açtı' : 'Giriş yaptı' }, ...(d.log || [])].slice(0, 1000); }); this.setSession({ u: u.u, name: u.name, admin: !!u.admin, acctAdmin: !!u.admin }); };
     const archived = D.projects.filter(p => this.isArch(p));
+    const me = sess ? sess.u : '', seen = me ? this.readSeen(me) : '';
+    const tf = iso => { const t = new Date(iso); return t.getDate() + ' ' + MON[t.getMonth()] + ' · ' + String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0'); };
+    const openLink = n => { if (!n.pid || !D.projects.some(p => p.id === n.pid)) return this.setState({ notifOpen: false }); this.go({ view: 'project', projectId: n.pid, stageId: n.sid }); this.setState({ taskId: n.tid || null, notifOpen: false }); };
+    const feed = (D.notify || []).filter(n => n.u !== me && (n.to === 'all' || n.to === me)).sort((a, b) => b.at.localeCompare(a.at)).slice(0, 60);
+    const unread = feed.filter(n => n.at > seen).length;
+    const lastA = feed.find(n => n.kind === 'assign' && n.to === me);
+    Object.assign(out, {
+      unread: unread > 99 ? '99+' : unread, badgeBg: unread ? '#E8641C' : '#4A443B', badgeColor: unread ? '#FFFFFF' : '#B9B2A4',
+      notifOpen: s.notifOpen, closeNotif: () => this.setState({ notifOpen: false }),
+      toggleNotif: () => { if (s.notifOpen) return this.setState({ notifOpen: false }); try { localStorage.setItem('bikutu-seen-' + me, new Date().toISOString()); } catch (e) {} this.setState({ notifOpen: true, notifPrev: seen }); },
+      notifEmpty: feed.length === 0, notifSub: feed.filter(n => n.at > s.notifPrev).length + ' yeni',
+      notifs: feed.map(n => ({ name: n.name, ini: ini(n.name), text: n.text, time: tf(n.at), forMe: n.to === me, isNew: n.at > s.notifPrev, bg: n.at > s.notifPrev ? '#FFFBF4' : '#FFFFFF', avBg: n.to === me ? '#F28A1E' : '#F1EADD', cursor: n.pid ? 'pointer' : 'default', onClick: () => openLink(n) })),
+      hasLastAssign: !!lastA, la: lastA ? { title: lastA.title + (lastA.proj ? ' · ' + lastA.proj : ''), when: tf(lastA.at), onClick: () => openLink(lastA) } : {}
+    });
     Object.assign(out, {
       locked: !sess, loggedIn: !!sess, isAdmin, isArchive: s.view === 'archive',
       loginU: s.loginU, loginP: s.loginP, loginErr: s.loginErr,
@@ -821,13 +931,14 @@ class Component extends DCLogic {
       modeNote: s.fbMode ? 'Hesabın yoksa yöneticinden kullanıcı adı ve şifre iste.' : 'Demo modu: Firebase bağlı değil, veriler yalnızca bu tarayıcıda tutuluyor.',
       lockTitle: isAdmin ? 'Admin kilidini kapat' : 'Admin girişi', lockBg: isAdmin ? '#F28A1E' : 'transparent', lockColor: isAdmin ? '#211E1A' : '#B9B2A4',
       onLock: () => { if (isAdmin) { if (sess.acctAdmin) this.logout(); else this.setSession({ ...sess, admin: false }); } else this.setState({ adminModal: true, loginU: '', loginP: '', loginErr: '' }); },
-      settingsOpen: s.settingsOpen && isAdmin, openSettings: () => this.setState({ settingsOpen: true, nuErr: '' }), closeSettings: () => this.setState({ settingsOpen: false }),
+      settingsOpen: s.settingsOpen && isAdmin, openSettings: () => this.setState({ settingsOpen: true, nuErr: '', nuDone: null }), closeSettings: () => this.setState({ settingsOpen: false }),
       usersList: users.map((u, ui) => ({ name: u.name, u: u.u, ini: ini(u.name), bg: u.admin ? '#F28A1E' : '#F1EADD', role: u.admin ? 'Admin' : 'Ekip', roleBg: u.admin ? '#FBE3D6' : '#ECE7DC', roleColor: u.admin ? '#B2431D' : '#5E584E', can: isAdmin && u.u !== 'yaman', onDelete: () => { if (this.fb) { const { F, db } = this.fb; F.deleteDoc(F.doc(db, 'users', u.uid)).then(() => this.logAct('Kullanıcıyı kaldırdı: ' + u.name)); return; } this.upd(d => { d.users.splice(ui, 1); }, null, 'Kullanıcıyı kaldırdı: ' + u.name); } })),
       nuName: s.nuName, nuU: s.nuU, nuP: s.nuP, nuErr: s.nuErr,
       onNuName: e => this.setState({ nuName: e.target.value, nuErr: '' }), onNuU: e => this.setState({ nuU: e.target.value, nuErr: '' }), onNuP: e => this.setState({ nuP: e.target.value, nuErr: '' }),
       nuRoles: [[false, 'Ekip'], [true, 'Admin']].map(([v, label]) => ({ label, bg: s.nuAdmin === v ? '#FFFFFF' : 'transparent', color: s.nuAdmin === v ? '#211E1A' : '#756F64', onClick: () => this.setState({ nuAdmin: v }) })),
-      addUser: () => { const u = s.nuU.trim().toLowerCase(); if (!s.nuName.trim() || !u || !s.nuP) return this.setState({ nuErr: 'Ad, kullanıcı adı ve şifre gerekli.' }); if (users.some(x => x.u === u)) return this.setState({ nuErr: 'Bu kullanıcı adı zaten var.' }); if (!/^[a-z0-9._-]+$/.test(u)) return this.setState({ nuErr: 'Kullanıcı adında Türkçe karakter ve boşluk olmasın (ör. elif.aydin).' }); if (this.fb) { if (s.nuP.length < 6) return this.setState({ nuErr: 'Şifre en az 6 karakter olmalı.' }); const nm = s.nuName.trim(); this.setState({ nuErr: 'Ekleniyor…' }); this.addUserFb(nm, u, s.nuP, s.nuAdmin).then(() => { this.setState({ nuName: '', nuU: '', nuP: '', nuAdmin: false, nuErr: '' }); this.logAct('Yeni kullanıcı ekledi: ' + nm); }).catch(e => this.setState({ nuErr: ERR(e) })); return; } this.upd(d => { d.users = d.users || []; d.users.push({ id: uid(), name: s.nuName.trim(), u, p: s.nuP, admin: s.nuAdmin }); }, { nuName: '', nuU: '', nuP: '', nuAdmin: false }, 'Yeni kullanıcı ekledi: ' + s.nuName.trim()); },
+      addUser: () => { const u = s.nuU.trim().toLowerCase(); if (!s.nuName.trim() || !u || !s.nuP) return this.setState({ nuErr: 'Ad, kullanıcı adı ve şifre gerekli.' }); if (users.some(x => x.u === u)) return this.setState({ nuErr: 'Bu kullanıcı adı zaten var.' }); if (!/^[a-z0-9._-]+$/.test(u)) return this.setState({ nuErr: 'Kullanıcı adında Türkçe karakter ve boşluk olmasın (ör. elif.aydin).' }); if (this.fb) { if (s.nuP.length < 6) return this.setState({ nuErr: 'Şifre en az 6 karakter olmalı.' }); const nm = s.nuName.trim(); this.setState({ nuErr: 'Ekleniyor…' }); this.addUserFb(nm, u, s.nuP, s.nuAdmin).then(() => { this.setState({ nuName: '', nuU: '', nuP: '', nuAdmin: false, nuErr: '', nuDone: { name: nm, u, p: s.nuP } }); this.logAct('Yeni kullanıcı ekledi: ' + nm); }).catch(e => this.setState({ nuErr: ERR(e) })); return; } this.upd(d => { d.users = d.users || []; d.users.push({ id: uid(), name: s.nuName.trim(), u, p: s.nuP, admin: s.nuAdmin }); }, { nuName: '', nuU: '', nuP: '', nuAdmin: false, nuDone: { name: s.nuName.trim(), u, p: s.nuP } }, 'Yeni kullanıcı ekledi: ' + s.nuName.trim()); },
       isLogs: s.view === 'logs' && isAdmin,
+      nuPType: s.nuShow ? 'text' : 'password', nuPLabel: s.nuShow ? 'Gizle' : 'Göster', toggleNuP: () => this.setState({ nuShow: !s.nuShow }), hasNuDone: !!s.nuDone, nuDone: s.nuDone || {},
       userStats: users.map(u => { const st = (D.stats || {})[u.u] || {}; const m = st.minutes || 0; const at = st.last ? new Date(st.last) : null; return { name: u.name, u: u.u, ini: ini(u.name), bg: u.admin ? '#F28A1E' : '#F1EADD', role: u.admin ? 'Admin' : 'Ekip', time: m >= 60 ? Math.floor(m / 60) + ' sa ' + (m % 60) + ' dk' : m + ' dk', logins: st.logins || 0, last: at ? at.getDate() + ' ' + MON[at.getMonth()] + ' · ' + String(at.getHours()).padStart(2, '0') + ':' + String(at.getMinutes()).padStart(2, '0') : '—' }; }),
       logEmpty: !(D.log || []).length,
       logGroups: (() => { const g = []; (D.log || []).slice().sort((a, b) => b.at.localeCompare(a.at)).forEach(l => { const dt = new Date(l.at); const key = dt.getFullYear() + '-' + dt.getMonth() + '-' + dt.getDate(); let last = g[g.length - 1]; if (!last || last.key !== key) { last = { key, day: dt.getDate() + ' ' + MON[dt.getMonth()] + ' ' + dt.getFullYear(), rows: [] }; g.push(last); } last.rows.push({ time: String(dt.getHours()).padStart(2, '0') + ':' + String(dt.getMinutes()).padStart(2, '0'), name: l.name, ini: ini(l.name), text: l.text }); }); return g; })(),
@@ -863,7 +974,14 @@ class Component extends DCLogic {
         out.drawerOpen = true;
         out.dr = {
           can: isAdmin, crumb: p.name + ' / ' + stage.name, title: task.title, desc: task.desc, owner: task.owner, opened: task.opened, due: task.due, closed: task.closed,
-          onTitle: set('title'), onDesc: set('desc'), onOwner: set('owner'), onOpened: set('opened'), onDue: set('due'), onClosed: set('closed'),
+          onTitle: set('title'), onDesc: set('desc'),
+          ownerVal: task.ownerU || (users.find(u => u.name === task.owner) || {}).u || (task.owner ? '__eski' : ''),
+          people: [{ v: '', label: 'Atanmadı' }, ...users.map(u => ({ v: u.u, label: u.name })), ...(task.owner && !task.ownerU && !users.some(u => u.name === task.owner) ? [{ v: '__eski', label: task.owner + ' (listede yok)' }] : [])],
+          hasAssigned: !!task.assignedAt, assignedNote: task.assignedAt ? (task.assignedByName || '') + ' atadı · ' + fmt(task.assignedAt.slice(0, 10)) : '',
+          onOwner: e => { const v = e.target.value; if (v === '__eski') return; const u = users.find(x => x.u === v); const now = new Date().toISOString();
+            this.upd(d => { const t = d.projects[pi].stages[si].tasks[ti]; t.owner = u ? u.name : ''; t.ownerU = u ? u.u : ''; t.assignedAt = u ? now : ''; t.assignedByName = u && sess ? sess.name : ''; }, null,
+              u ? '“' + p.name + '” projesinde “' + task.title + '” işini ' + u.name + ' kişisine atadı' : '“' + p.name + '” projesinde “' + task.title + '” işinin sorumlusunu kaldırdı',
+              u ? { to: u.u, kind: 'assign', text: 'sana bir iş atadı: “' + task.title + '” · ' + p.name + ' / ' + stage.name, title: task.title, proj: p.name, pid: p.id, sid: stage.id, tid: task.id } : null); }, onOpened: set('opened'), onDue: set('due'), onClosed: set('closed'),
           statuses: Object.keys(ST).map(k => ({ label: ST[k].label, bg: task.status === k ? '#FFFEFA' : 'transparent', color: task.status === k ? ST[k].color : '#756F64', shadow: task.status === k ? '0 1px 3px rgba(27,25,21,.15)' : 'none', onClick: () => this.upd(d => { const t = d.projects[pi].stages[si].tasks[ti]; t.status = k; if (k === 'done' && !t.closed) t.closed = today(); if (k !== 'done') t.closed = ''; }, null, '“' + p.name + '” projesinde “' + task.title + '” işini “' + ST[k].label + '” yaptı') })),
           onDelete: () => this.upd(d => d.projects[pi].stages[si].tasks.splice(ti, 1), { taskId: null }, '“' + p.name + '” projesinden “' + task.title + '” işini sildi')
         };
@@ -892,9 +1010,30 @@ class Component extends DCLogic {
 
     if (s.view === 'ideas') {
       const rots = [-2.2, 1.6, -0.8, 2.4, -1.6, 0.9, -2.8, 1.2];
-      out.ideas = D.ideas.map((i, ii) => ({ can: isAdmin, text: i.text, bg: NOTE[i.color % NOTE.length], rot: rots[ii % rots.length] + 'deg', date: fmt(i.date), onText: e => { const v = e.target.value; this.upd(d => { d.ideas[ii].text = v; }); }, onDelete: () => this.upd(d => d.ideas.splice(ii, 1), null, 'Fikir Atlası’ndan not kaldırdı: ' + i.text) }));
+      const dg = s.drag; let maxX = 0, maxY = 0;
+      out.ideas = D.ideas.map((n, ii) => {
+        const legacy = n.title === undefined, title = legacy ? n.text : n.title;
+        const px = n.x ?? (24 + (ii % 4) * 284), py = n.y ?? (28 + Math.floor(ii / 4) * 320);
+        const on = !!(dg && dg.id === n.id), x = on ? dg.x : px, y = on ? dg.y : py;
+        maxX = Math.max(maxX, x); maxY = Math.max(maxY, y);
+        const hsh = String(n.id).split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+        const ed = fn => this.upd(d => { const q = d.ideas.find(z => z.id === n.id); if (!q) return; if (q.title === undefined) { q.title = q.text; q.text = ''; } fn(q); });
+        const checks = n.checks || [], dn = checks.filter(c => c.done).length, hasList = checks.length > 0 || !!n.list;
+        return { can: isAdmin, title, body: legacy ? '' : (n.text || ''), bg: NOTE[(n.color || 0) % NOTE.length], x: x + 'px', y: y + 'px', z: on ? 999 : (n.z || 1),
+          rot: on ? '0deg' : rots[hsh % rots.length] + 'deg', shadow: on ? '0 30px 50px -20px rgba(27,25,21,.5)' : '0 1px 0 rgba(0,0,0,.04),0 14px 24px -14px rgba(27,25,21,.35)', tr: on ? 'none' : 'transform .2s,box-shadow .2s', cursor: on ? 'grabbing' : 'grab', date: fmt(n.date),
+          onDown: e => this.startDrag(e, n.id, px, py),
+          onTitle: e => { const v = e.target.value; ed(q => { q.title = v; }); },
+          onBody: e => { const v = e.target.value; ed(q => { q.text = v; }); },
+          colors: NOTE.map((c, ci) => ({ bg: c, ring: (n.color || 0) % NOTE.length === ci ? '#1F1B16' : 'rgba(27,25,21,.15)', onClick: () => ed(q => { q.color = ci; }) })),
+          hasList, noList: !hasList, listStat: dn + '/' + checks.length, onList: () => ed(q => { q.list = true; }),
+          checks: checks.map((c, ci) => ({ text: c.text, check: c.done ? '✓' : '', boxBg: c.done ? '#2F7446' : 'transparent', boxBorder: c.done ? '#2F7446' : 'rgba(27,25,21,.45)', color: c.done ? 'rgba(27,25,21,.5)' : '#1F1B16', deco: c.done ? 'line-through' : 'none', can: isAdmin,
+            onToggle: () => ed(q => { q.checks[ci].done = !c.done; }), onText: e => { const v = e.target.value; ed(q => { q.checks[ci].text = v; }); }, onDelete: () => ed(q => { q.checks.splice(ci, 1); }) })),
+          onAddCheck: e => { if (e.key !== 'Enter') return; const v = e.target.value.trim(); if (!v) return; e.target.value = ''; ed(q => { q.checks = q.checks || []; q.checks.push({ id: uid(), text: v, done: false }); }); },
+          onDelete: () => this.upd(d => { const k = d.ideas.findIndex(z => z.id === n.id); if (k > -1) d.ideas.splice(k, 1); }, null, 'Fikir Atlası’ndan not kaldırdı: ' + title) };
+      });
+      out.boardW = Math.max(1100, maxX + 300) + 'px'; out.boardH = Math.max(680, maxY + 440) + 'px';
       out.newIdea = s.newIdea; out.onNewIdea = e => this.setState({ newIdea: e.target.value });
-      const addIdea = () => { const t = s.newIdea.trim(); if (!t) return; this.upd(d => d.ideas.unshift({ id: uid(), text: t, color: s.ideaColor, date: today() }), { newIdea: '' }, 'Fikir Atlası’na not ekledi: ' + t); };
+      const addIdea = () => { const t = s.newIdea.trim(); if (!t) return; this.upd(d => d.ideas.push({ id: uid(), title: t, text: '', color: s.ideaColor, date: today(), x: 24, y: 28, z: Math.max(1, ...d.ideas.map(q => q.z || 1)) + 1, checks: [] }), { newIdea: '' }, 'Fikir Atlası’na not ekledi: ' + t); };
       out.addIdea = addIdea; out.ideaKey = e => { if (e.key === 'Enter') addIdea(); };
       out.ideaColors = NOTE.map((c, ci) => ({ bg: c, ring: s.ideaColor === ci ? '#1F1B16' : 'transparent', onClick: () => this.setState({ ideaColor: ci }) }));
     }
