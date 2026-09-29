@@ -462,10 +462,207 @@ input:focus,textarea:focus{outline:none}
     </div>
   </div>
 </sc-if>
+<sc-if value="{{ isWeekly }}" hint-placeholder-val="{{ false }}">
+  <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid #ECE2D0;margin-bottom:28px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#E0671A;text-transform:uppercase;font-weight:600">05 — Haftalık İş Listem</span>
+      <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:68px;line-height:0.95;letter-spacing:-0.02em">Bu haftanın işleri</h1>
+      <span style="font-size:16px;color:#756F64">Her hafta yeni bir sayfa; en yenisi en üstte.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:4px;padding:4px;background:#F1EADD;border-radius:999px;flex-wrap:wrap">
+          <sc-for list="{{ weekPeople }}" as="wp" hint-placeholder-count="2"><button onClick="{{ wp.onClick }}" style="border:none;cursor:pointer;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;background:{{ wp.bg }};color:{{ wp.color }}">{{ wp.label }}</button></sc-for>
+        </div>
+      </sc-if>
+      <button onClick="{{ addWeek }}" style="border:none;cursor:pointer;background:#211E1A;color:#FAF5EC;padding:14px 22px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap" style-hover="background:#E8641C">+ Yeni hafta</button>
+    </div>
+  </header>
+  <sc-if value="{{ weekEmpty }}" hint-placeholder-val="{{ false }}">
+    <div style="border:1px dashed #DCCFB8;border-radius:16px;padding:56px;text-align:center;color:#756F64;font-size:14px">{{ weekOwner }} için henüz hafta açılmamış. “+ Yeni hafta” ile başla.</div>
+  </sc-if>
+  <div style="display:flex;flex-direction:column;gap:40px;max-width:920px">
+    <sc-for list="{{ weeks }}" as="w" hint-placeholder-count="2">
+      <div style="position:relative">
+        <div style="position:absolute;inset:10px -10px -10px 10px;background:#EEE6D8;border-radius:6px"></div>
+        <div style="position:relative;background-color:#FFFEFA;background-image:linear-gradient(90deg,transparent 95px,#E7A58F 95px,#E7A58F 96px,transparent 96px);border-radius:6px;box-shadow:0 30px 60px -34px rgba(27,25,21,.35);padding:34px clamp(20px,4vw,48px) 30px 128px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid #E6E0D2">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <input type="date" value="{{ w.start }}" onChange="{{ w.onStart }}" title="Haftanın ilk günü" style="border:none;background:transparent;font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:0.1em;color:#756F64;padding:0"></input>
+                <sc-if value="{{ w.isCur }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;padding:4px 8px;border-radius:999px;background:#FBE3D6;color:#B2431D;font-weight:600">Bu hafta</span></sc-if>
+              </div>
+              <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-style:italic;font-size:clamp(30px,3.6vw,44px);line-height:1.05">{{ w.range }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end">
+              <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:44px;line-height:0.9">{{ w.pct }}%</span>
+              <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">{{ w.stat }}</span>
+            </div>
+          </div>
+          <sc-for list="{{ w.items }}" as="d" hint-placeholder-count="3">
+            <div style="position:relative;display:flex;align-items:center;gap:16px;height:44px;border-bottom:1px solid #EFEADF">
+              <span style="position:absolute;left:-84px;width:56px;text-align:right;font-family:'Geist Mono',monospace;font-size:13px;color:#B8B0A0">{{ d.num }}</span>
+              <button onClick="{{ d.onToggle }}" style="flex-shrink:0;width:22px;height:22px;border-radius:6px;cursor:pointer;border:1.5px solid {{ d.boxBorder }};background:{{ d.boxBg }};color:#FFFEFA;font-size:13px;line-height:1;display:grid;place-items:center;padding:0">{{ d.check }}</button>
+              <input value="{{ d.text }}" onChange="{{ d.onText }}" style="flex:1;min-width:0;border:none;background:transparent;font-size:17px;padding:0;color:{{ d.color }};text-decoration:{{ d.deco }};text-decoration-color:#B8B0A0"></input>
+              <sc-if value="{{ d.can }}" hint-placeholder-val="{{ false }}"><button onClick="{{ d.onDelete }}" style="flex-shrink:0;border:none;background:transparent;cursor:pointer;color:#DCCFB8;font-size:16px;padding:0 4px" style-hover="color:#E8641C">×</button></sc-if>
+            </div>
+          </sc-for>
+          <div style="position:relative;display:flex;align-items:center;gap:16px;height:44px">
+            <span style="position:absolute;left:-84px;width:56px;text-align:right;font-family:'Geist Mono',monospace;font-size:13px;color:#E8641C">{{ w.nextNum }}</span>
+            <span style="flex-shrink:0;width:22px;height:22px;border-radius:6px;border:1.5px dashed #DCCFB8"></span>
+            <input onKeyDown="{{ w.onAdd }}" placeholder="Yeni iş yaz, Enter’a bas…" style="flex:1;border:none;background:transparent;font-size:17px;padding:0"></input>
+          </div>
+          <sc-if value="{{ w.can }}" hint-placeholder-val="{{ false }}"><button onClick="{{ w.onDelete }}" style="margin-top:14px;border:none;background:transparent;cursor:pointer;padding:0;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.12em;color:#B2431D;text-transform:uppercase" style-hover="color:#1F1B16">Haftayı sil</button></sc-if>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isPayments }}" hint-placeholder-val="{{ false }}">
+  <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid #ECE2D0;margin-bottom:28px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#E0671A;text-transform:uppercase;font-weight:600">06 — Ödemeler</span>
+      <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:68px;line-height:0.95;letter-spacing:-0.02em">Kime, ne kadar, ne zaman</h1>
+      <span style="font-size:16px;color:#756F64">Taksitlere tıkla, ödendi olarak işaretlensin. Sarı: bu ay · Kırmızı: gecikmiş.</span>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button onClick="{{ addPayCol }}" style="border:1px solid #1F1B16;cursor:pointer;background:transparent;padding:13px 20px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap" style-hover="background:#1F1B16;color:#FAF5EC">+ Sütun</button>
+      <button onClick="{{ addPayment }}" style="border:none;cursor:pointer;background:#211E1A;color:#FAF5EC;padding:14px 22px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap" style-hover="background:#E8641C">+ Ödeme</button>
+    </div>
+  </header>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:22px">
+    <sc-for list="{{ payStats }}" as="st" hint-placeholder-count="4">
+      <div style="display:flex;flex-direction:column;gap:8px;border:1px solid #ECE2D0;background:#FFFFFF;border-radius:16px;padding:18px 20px">
+        <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">{{ st.label }}</span>
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:30px;line-height:1;color:{{ st.color }}">{{ st.value }}</span>
+      </div>
+    </sc-for>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+    <sc-for list="{{ payFilters }}" as="fl" hint-placeholder-count="5">
+      <button onClick="{{ fl.onClick }}" style="display:flex;align-items:center;gap:7px;border:1px solid {{ fl.border }};background:{{ fl.bg }};color:{{ fl.color }};border-radius:999px;padding:8px 14px;font-size:13px;font-weight:500;cursor:pointer">{{ fl.label }}<span style="font-family:'Geist Mono',monospace;font-size:11px;opacity:.65">{{ fl.count }}</span></button>
+    </sc-for>
+  </div>
+  <div style="border:1px solid #ECE2D0;background:#FFFFFF;border-radius:18px;overflow-x:auto">
+    <div style="min-width:{{ payMin }}">
+      <div style="display:grid;grid-template-columns:{{ payGrid }};border-bottom:1px solid #1F1B16">
+        <div style="padding:14px 12px 14px 20px;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Ürün</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Kişi / firma</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Tür</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Toplam (₺)</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Taksit</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">İlk ödeme</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Taksitler</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Kalan</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Not</div>
+          <sc-for list="{{ payColsH }}" as="c" hint-placeholder-count="0">
+            <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;border-left:1px solid #F1EADD">
+              <input value="{{ c.name }}" onChange="{{ c.onName }}" style="flex:1;min-width:0;border:none;background:transparent;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;padding:6px 0"></input>
+              <sc-if value="{{ c.can }}" hint-placeholder-val="{{ false }}"><button onClick="{{ c.onRemove }}" title="Sütunu sil" style="border:none;background:transparent;cursor:pointer;color:#B8B0A0;font-size:14px;padding:0 2px" style-hover="color:#E8641C">×</button></sc-if>
+            </div>
+          </sc-for>
+        <div style="border-left:1px solid #F1EADD"></div>
+      </div>
+      <sc-if value="{{ payEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:40px;text-align:center;color:#756F64;font-size:14px">Kayıt yok. “+ Ödeme” ile ekle.</div></sc-if>
+      <sc-for list="{{ payRows }}" as="r" hint-placeholder-count="4">
+        <div style="display:grid;grid-template-columns:{{ payGrid }};border-bottom:1px solid #F1EADD;align-items:center" style-hover="background:#FFF9EF">
+          <div style="padding:10px 12px 10px 20px;min-width:0"><input value="{{ r.product }}" onChange="{{ r.onProduct }}" placeholder="Ürün adı" style="width:100%;border:none;background:transparent;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:17px;padding:4px 0"></input></div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0"><input value="{{ r.person }}" onChange="{{ r.onPerson }}" placeholder="Kime?" style="width:100%;border:none;background:transparent;font-size:14px;padding:6px 0"></input></div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0"><select value="{{ r.type }}" onChange="{{ r.onType }}" style="width:100%;border:1px solid #ECE2D0;border-radius:9px;background:#FFFEFA;font-family:inherit;font-size:13px;padding:7px 8px;cursor:pointer"><sc-for list="{{ payTypes }}" as="op" hint-placeholder-count="4"><option value="{{ op }}">{{ op }}</option></sc-for></select></div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0"><input type="number" min="0" value="{{ r.total }}" onChange="{{ r.onTotal }}" style="width:100%;border:none;background:transparent;font-family:'Geist Mono',monospace;font-size:13px;padding:6px 0"></input></div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0"><input type="number" min="1" max="60" value="{{ r.count }}" onChange="{{ r.onCount }}" style="width:100%;border:none;background:transparent;font-family:'Geist Mono',monospace;font-size:13px;padding:6px 0"></input></div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0"><input type="month" value="{{ r.start }}" onChange="{{ r.onStart }}" style="width:100%;border:none;background:transparent;font-family:'Geist Mono',monospace;font-size:13px;padding:6px 0;font-size:12px"></input></div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0;display:flex;flex-wrap:wrap;gap:4px">
+            <sc-for list="{{ r.inst }}" as="ins" hint-placeholder-count="3"><button onClick="{{ ins.onClick }}" title="{{ ins.title }}" style="border:1.5px solid {{ ins.border }};cursor:pointer;background:{{ ins.bg }};color:{{ ins.color }};border-radius:7px;padding:4px 7px;font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap">{{ ins.mark }}{{ ins.label }}</button></sc-for>
+          </div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-family:'Geist Mono',monospace;font-size:13px;font-weight:500;color:{{ r.remainColor }}">{{ r.remain }}</span><span style="font-size:11px;color:#9E978A">{{ r.sub }}</span></div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0"><input value="{{ r.note }}" onChange="{{ r.onNote }}" placeholder="—" style="width:100%;border:none;background:transparent;font-size:14px;padding:6px 0"></input></div>
+            <sc-for list="{{ r.extra }}" as="x" hint-placeholder-count="0"><div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0"><input value="{{ x.value }}" onChange="{{ x.onChange }}" style="width:100%;border:none;background:transparent;font-size:14px;padding:6px 0"></input></div></sc-for>
+            <div style="display:grid;place-items:center;border-left:1px solid #F1EADD;align-self:stretch"><sc-if value="{{ r.can }}" hint-placeholder-val="{{ false }}"><button onClick="{{ r.onDelete }}" title="Satırı sil" style="border:none;background:transparent;cursor:pointer;color:#B8B0A0;font-size:16px" style-hover="color:#B2431D">×</button></sc-if></div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isContracts }}" hint-placeholder-val="{{ false }}">
+  <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid #ECE2D0;margin-bottom:28px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#E0671A;text-transform:uppercase;font-weight:600">07 — Sözleşmeler</span>
+      <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:68px;line-height:0.95;letter-spacing:-0.02em">İmzalar ve süreler</h1>
+      <span style="font-size:16px;color:#756F64">Kimle, hangi ürün için, ne zamana kadar. Bitişe 60 gün kala sarıya döner.</span>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button onClick="{{ addConCol }}" style="border:1px solid #1F1B16;cursor:pointer;background:transparent;padding:13px 20px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap" style-hover="background:#1F1B16;color:#FAF5EC">+ Sütun</button>
+      <button onClick="{{ addContract }}" style="border:none;cursor:pointer;background:#211E1A;color:#FAF5EC;padding:14px 22px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap" style-hover="background:#E8641C">+ Sözleşme</button>
+    </div>
+  </header>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:22px">
+    <sc-for list="{{ conStats }}" as="st" hint-placeholder-count="4">
+      <div style="display:flex;flex-direction:column;gap:8px;border:1px solid #ECE2D0;background:#FFFFFF;border-radius:16px;padding:18px 20px">
+        <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">{{ st.label }}</span>
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:30px;line-height:1;color:{{ st.color }}">{{ st.value }}</span>
+      </div>
+    </sc-for>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+    <sc-for list="{{ conFilters }}" as="fl" hint-placeholder-count="5">
+      <button onClick="{{ fl.onClick }}" style="display:flex;align-items:center;gap:7px;border:1px solid {{ fl.border }};background:{{ fl.bg }};color:{{ fl.color }};border-radius:999px;padding:8px 14px;font-size:13px;font-weight:500;cursor:pointer">{{ fl.label }}<span style="font-family:'Geist Mono',monospace;font-size:11px;opacity:.65">{{ fl.count }}</span></button>
+    </sc-for>
+  </div>
+  <div style="border:1px solid #ECE2D0;background:#FFFFFF;border-radius:18px;overflow-x:auto">
+    <div style="min-width:{{ conMin }}">
+      <div style="display:grid;grid-template-columns:{{ conGrid }};border-bottom:1px solid #1F1B16">
+        <div style="padding:14px 12px 14px 20px;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Sözleşme kişisi</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Tür</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Ürün</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Durum</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Başlangıç</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Bitiş</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Kalan süre</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Bedel (₺)</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Telif %</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Belge linki</div>
+        <div style="padding:14px 12px;border-left:1px solid #F1EADD;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase">Not</div>
+          <sc-for list="{{ conColsH }}" as="c" hint-placeholder-count="0">
+            <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;border-left:1px solid #F1EADD">
+              <input value="{{ c.name }}" onChange="{{ c.onName }}" style="flex:1;min-width:0;border:none;background:transparent;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;padding:6px 0"></input>
+              <sc-if value="{{ c.can }}" hint-placeholder-val="{{ false }}"><button onClick="{{ c.onRemove }}" title="Sütunu sil" style="border:none;background:transparent;cursor:pointer;color:#B8B0A0;font-size:14px;padding:0 2px" style-hover="color:#E8641C">×</button></sc-if>
+            </div>
+          </sc-for>
+        <div style="border-left:1px solid #F1EADD"></div>
+      </div>
+      <sc-if value="{{ conEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:40px;text-align:center;color:#756F64;font-size:14px">Kayıt yok. “+ Sözleşme” ile ekle.</div></sc-if>
+      <sc-for list="{{ conRows }}" as="r" hint-placeholder-count="4">
+        <div style="display:grid;grid-template-columns:{{ conGrid }};border-bottom:1px solid #F1EADD;align-items:center" style-hover="background:#FFF9EF">
+          <div style="padding:10px 12px 10px 20px;min-width:0"><input value="{{ r.person }}" onChange="{{ r.onPerson }}" placeholder="Ad soyad" style="width:100%;border:none;background:transparent;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:17px;padding:4px 0"></input></div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0"><select value="{{ r.type }}" onChange="{{ r.onType }}" style="width:100%;border:1px solid #ECE2D0;border-radius:9px;background:#FFFEFA;font-family:inherit;font-size:13px;padding:7px 8px;cursor:pointer"><sc-for list="{{ conTypes }}" as="op" hint-placeholder-count="4"><option value="{{ op }}">{{ op }}</option></sc-for></select></div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0"><input value="{{ r.product }}" onChange="{{ r.onProduct }}" placeholder="Ürün adı" style="width:100%;border:none;background:transparent;font-size:14px;padding:6px 0"></input></div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0">
+            <div style="display:flex;gap:3px;padding:3px;background:#F4EEE3;border-radius:9px">
+              <button onClick="{{ r.setDone }}" style="flex:1;border:none;cursor:pointer;padding:6px 6px;border-radius:7px;font-size:12px;font-weight:500;background:{{ r.doneBg }};color:{{ r.doneColor }}">Yapıldı</button>
+              <button onClick="{{ r.setTodo }}" style="flex:1;border:none;cursor:pointer;padding:6px 6px;border-radius:7px;font-size:12px;font-weight:500;background:{{ r.todoBg }};color:{{ r.todoColor }}">Yapılmadı</button>
+            </div>
+          </div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0"><input type="date" value="{{ r.start }}" onChange="{{ r.onStart }}" style="width:100%;border:none;background:transparent;font-family:'Geist Mono',monospace;font-size:13px;padding:6px 0;font-size:12px"></input></div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0"><input type="date" value="{{ r.end }}" onChange="{{ r.onEnd }}" style="width:100%;border:none;background:transparent;font-family:'Geist Mono',monospace;font-size:13px;padding:6px 0;font-size:12px"></input></div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0"><span style="display:inline-block;font-family:'Geist Mono',monospace;font-size:11px;padding:5px 9px;border-radius:999px;background:{{ r.remBg }};color:{{ r.remColor }};white-space:nowrap">{{ r.remain }}</span></div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0"><input type="number" min="0" value="{{ r.fee }}" onChange="{{ r.onFee }}" style="width:100%;border:none;background:transparent;font-family:'Geist Mono',monospace;font-size:13px;padding:6px 0"></input></div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0"><input type="number" min="0" max="100" step="0.5" value="{{ r.royalty }}" onChange="{{ r.onRoyalty }}" style="width:100%;border:none;background:transparent;font-family:'Geist Mono',monospace;font-size:13px;padding:6px 0"></input></div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0;display:flex;align-items:center;gap:6px"><input value="{{ r.link }}" onChange="{{ r.onLink }}" placeholder="https://…" style="width:100%;border:none;background:transparent;font-size:14px;padding:6px 0;font-size:12px"></input><sc-if value="{{ r.hasLink }}" hint-placeholder-val="{{ false }}"><a href="{{ r.link }}" target="_blank" rel="noopener" title="Belgeyi aç" style="flex-shrink:0;font-size:14px;color:#E8641C">↗</a></sc-if></div>
+          <div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0"><input value="{{ r.note }}" onChange="{{ r.onNote }}" placeholder="—" style="width:100%;border:none;background:transparent;font-size:14px;padding:6px 0"></input></div>
+            <sc-for list="{{ r.extra }}" as="x" hint-placeholder-count="0"><div style="padding:10px 12px;border-left:1px solid #F1EADD;min-width:0"><input value="{{ x.value }}" onChange="{{ x.onChange }}" style="width:100%;border:none;background:transparent;font-size:14px;padding:6px 0"></input></div></sc-for>
+            <div style="display:grid;place-items:center;border-left:1px solid #F1EADD;align-self:stretch"><sc-if value="{{ r.can }}" hint-placeholder-val="{{ false }}"><button onClick="{{ r.onDelete }}" title="Satırı sil" style="border:none;background:transparent;cursor:pointer;color:#B8B0A0;font-size:16px" style-hover="color:#B2431D">×</button></sc-if></div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
 <sc-if value="{{ isArchive }}" hint-placeholder-val="{{ false }}">
   <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid #ECE2D0;margin-bottom:32px">
     <div style="display:flex;flex-direction:column;gap:10px">
-      <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#E0671A;text-transform:uppercase;font-weight:600">05 — Arşiv</span>
+      <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#E0671A;text-transform:uppercase;font-weight:600">08 — Arşiv</span>
       <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:68px;line-height:0.95;letter-spacing:-0.02em">Biten işler</h1>
       <span style="font-size:16px;color:#756F64">Yüzde yüze ulaşan projeler, bütün aşamalarıyla burada.</span>
     </div>
@@ -491,7 +688,7 @@ input:focus,textarea:focus{outline:none}
 <sc-if value="{{ isLogs }}" hint-placeholder-val="{{ false }}">
   <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid #ECE2D0;margin-bottom:32px">
     <div style="display:flex;flex-direction:column;gap:10px">
-      <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#E0671A;text-transform:uppercase;font-weight:600">06 — Kayıtlar</span>
+      <span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#E0671A;text-transform:uppercase;font-weight:600">09 — Kayıtlar</span>
       <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:68px;line-height:0.95;letter-spacing:-0.02em">Kim, ne zaman, ne yaptı</h1>
       <span style="font-size:16px;color:#756F64">Kullanıcıların giriş ve süre bilgileri ile yapılan her işin tarihli dökümü.</span>
     </div>
@@ -645,6 +842,12 @@ const PC = ['#E8641C','#F2A516','#3E9E8F','#5B7FC7','#D0678A','#8A74C4'];
 const PS = ['#FFE3DA','#FFF1C9','#D3F3EE','#DDE7FF','#FFE0EC','#EAE0FF'];
 const PI = ['#E0431F','#C78F00','#0E8C7E','#2F63D8','#D9477F','#6D40D8'];
 const COLS = ['oklch(0.64 0.16 38)', 'oklch(0.64 0.16 85)', 'oklch(0.64 0.16 150)', 'oklch(0.64 0.16 250)', 'oklch(0.64 0.16 310)', 'oklch(0.64 0.16 200)'];
+const PTYPES = ['Danışmanlık', 'Grafik', 'Çizer', 'Yazar'];
+const CTYPES = ['Yazar', 'Çizer', 'Danışman', 'Grafiker'];
+const money = n => new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 }).format(Math.round(n || 0)) + ' ₺';
+const ymd = x => x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0');
+const monday = dt => { const x = new Date(dt + 'T00:00'); x.setDate(x.getDate() - (x.getDay() + 6) % 7); return ymd(x); };
+const addM = (ym, k) => { const [y, m] = ym.split('-').map(Number); const t = new Date(y, m - 1 + k, 1); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0'); };
 const NOTE = ['#F6E3A1', '#F4CDBD', '#CFE5D6', '#D3DDF0', '#EBD3DF'];
 const ST = {
   todo: { label: 'Bekliyor', bg: '#ECE7DC', color: '#5E584E' },
@@ -657,8 +860,9 @@ const DEFAULT_USERS = [{ id: 'u0', name: 'Yaman', u: 'yaman', p: 'yaman.1905', a
 const FB_V = '10.12.2', FB_DOMAIN = 'bikutuoyun.panel';
 const email = u => u.trim().toLowerCase() + '@' + FB_DOMAIN;
 const FB_READY = () => { const c = window.BIKUTU_FIREBASE; return !!(c && c.apiKey && !/BURAYA/.test(c.apiKey)); };
-const SECTIONS = { projects: d => ({ items: d.projects }), calendar: d => ({ columns: d.columns, products: d.products }), ideas: d => ({ items: d.ideas }), meetings: d => ({ items: d.meetings }) };
-const EMPTY = () => ({ users: [], stats: {}, log: [], projects: [], columns: ['İşe başlama', 'Tasarım teslim', 'Baskıya giriş', 'Yayın'].map(name => ({ id: uid(), name })), products: [], ideas: [], meetings: [], notify: [] });
+const SECTIONS = { projects: d => ({ items: d.projects }), calendar: d => ({ columns: d.columns, products: d.products }), ideas: d => ({ items: d.ideas }), meetings: d => ({ items: d.meetings }), weekly: d => ({ items: d.weekly || [] }), payments: d => ({ columns: d.payCols || [], items: d.payments || [] }), contracts: d => ({ columns: d.conCols || [], items: d.contracts || [] }) };
+const LOAD = { calendar: (d, v) => { d.columns = v.columns || []; d.products = v.products || []; }, payments: (d, v) => { d.payCols = v.columns || []; d.payments = v.items || []; }, contracts: (d, v) => { d.conCols = v.columns || []; d.contracts = v.items || []; } };
+const EMPTY = () => ({ users: [], stats: {}, log: [], projects: [], columns: ['İşe başlama', 'Tasarım teslim', 'Baskıya giriş', 'Yayın'].map(name => ({ id: uid(), name })), products: [], ideas: [], meetings: [], notify: [], weekly: [], payCols: [], payments: [], conCols: [], contracts: [] });
 const ERR = e => { const c = (e && e.code) || ''; if (/email-already-in-use/.test(c)) return 'Bu kullanıcı adı daha önce kullanılmış, başka bir ad seç.'; if (/weak-password/.test(c)) return 'Şifre en az 6 karakter olmalı.'; if (/too-many-requests/.test(c)) return 'Çok fazla deneme yapıldı, biraz sonra tekrar dene.'; if (/network/.test(c)) return 'İnternet bağlantısını kontrol et.'; return 'Kullanıcı adı ya da şifre hatalı.'; };
 function seed() {
   const E = 'Elif Aydın', M = 'Mert Kaya', Z = 'Zeynep Arslan', C = 'Can Demir', S = 'Selin Yıldız';
@@ -746,6 +950,23 @@ function seed() {
       ['Kutunun iç kapağına “Bu oyunu kim yaptı?” sayfası.', 0, '2026-08-22'],
       ['Yaz tatili kampanyası: seyahat serisi bundle.', 3, '2026-08-10']
     ].map(([text, c, date]) => ({ id: uid(), text, color: c, date })),
+    weekly: [
+      { id: uid(), u: 'yaman', start: '2026-09-28', items: [{ id: uid(), text: 'Kelimegen prova onayını matbaaya ilet', done: true }, { id: uid(), text: 'Babi seti çıkartma taslaklarını incele', done: false }, { id: uid(), text: 'Fuar standı bütçesini kesinleştir', done: false }] },
+      { id: uid(), u: 'yaman', start: '2026-09-21', items: [{ id: uid(), text: 'Harfabe iç sayfa revizyonları', done: true }, { id: uid(), text: 'Yeni illüstratörle görüşme', done: true }] }
+    ],
+    payCols: [],
+    payments: [
+      { id: uid(), product: 'Kelimegen', person: 'Mert Kaya', type: 'Çizer', total: 48000, count: 4, start: '2026-07', paid: [true, true, false, false], note: '48 kart illüstrasyonu', extra: {} },
+      { id: uid(), product: 'Harfabe — 2. Seri', person: 'Zeynep Arslan', type: 'Yazar', total: 30000, count: 3, start: '2026-08', paid: [true, false, false], note: '', extra: {} },
+      { id: uid(), product: 'Babi ile Çıkartmalı Set', person: 'Elif Aydın', type: 'Grafik', total: 18000, count: 2, start: '2026-10', paid: [], note: 'Mizanpaj + kutu', extra: {} },
+      { id: uid(), product: 'Türkiye Dikkat Oyunu', person: 'Pedagoji Danışmanlık Ltd.', type: 'Danışmanlık', total: 12000, count: 1, start: '2026-09', paid: [true], note: '', extra: {} }
+    ],
+    conCols: [],
+    contracts: [
+      { id: uid(), person: 'Mert Kaya', type: 'Çizer', product: 'Kelimegen', done: true, start: '2026-06-02', end: '2027-06-01', fee: 48000, royalty: 0, link: '', note: 'Çizimlerin tüm hakları devredildi', extra: {} },
+      { id: uid(), person: 'Zeynep Arslan', type: 'Yazar', product: 'Harfabe — 2. Seri', done: true, start: '2026-04-15', end: '2026-11-15', fee: 30000, royalty: 8, link: '', note: '', extra: {} },
+      { id: uid(), person: 'Elif Aydın', type: 'Grafiker', product: 'Babi ile Çıkartmalı Set', done: false, start: '2026-10-01', end: '2027-03-31', fee: 18000, royalty: 0, link: '', note: 'Taslak gönderildi', extra: {} }
+    ],
     meetings: [
       ['2026-09-24', 'Kelimegen baskı öncesi', 'Elif, Zeynep, Can, Selin', [['Kırmızı tonu için ikinci prova istenecek', true], ['Kelime listesi 1 Ekim’de kilitlenecek', false], ['Aile kitapçığı 16 sayfa olacak', true], ['Bayi tanıtımı fuardan önce hazır', false]]],
       ['2026-09-10', 'Q4 yayın planı', 'Tüm ekip', [['Aralık’ta 3 ürün rafta olacak', true], ['Türkiye oyunu Aralık sonuna kayabilir', true], ['Yeni illüstratör görüşmesi', true], ['Fuar standı bütçesi onaylandı', true], ['Instagram içerik takvimi hazırlanacak', false]]],
@@ -812,8 +1033,8 @@ class Component extends DCLogic {
     const { F, db } = this.fb, un = this.fb.unsubs;
     Object.keys(SECTIONS).forEach(k => un.push(F.onSnapshot(F.doc(db, 'panel', k), sn => {
       if (this.fb.pending[k] || !sn.exists()) return;
-      const v = sn.data(); this.fb.last[k] = JSON.stringify(SECTIONS[k](k === 'calendar' ? v : { [k]: v.items }));
-      this.setState(s => { const d = { ...s.data }; if (k === 'calendar') { d.columns = v.columns || []; d.products = v.products || []; } else d[k] = v.items || []; return { data: d }; });
+      const v = sn.data(), ld = LOAD[k] || ((d, x) => { d[k] = x.items || []; }), tmp = {}; ld(tmp, v); this.fb.last[k] = JSON.stringify(SECTIONS[k](tmp));
+      this.setState(s => { const d = { ...s.data }; ld(d, v); return { data: d }; });
     })));
     un.push(F.onSnapshot(F.collection(db, 'users'), qs => this.setState(s => ({ data: { ...s.data, users: qs.docs.map(x => ({ uid: x.id, u: x.data().username, name: x.data().name, admin: !!x.data().admin })) } }))));
     un.push(F.onSnapshot(F.query(F.collection(db, 'notify'), F.orderBy('at', 'desc'), F.limit(80)), qs => this.setState(s => ({ data: { ...s.data, notify: qs.docs.map(x => ({ id: x.id, ...x.data() })) } })), e => console.warn('Bildirimler okunamadı — firestore.rules güncel mi?', e)));
@@ -879,7 +1100,7 @@ class Component extends DCLogic {
     const openProject = p => this.go({ view: 'project', projectId: p.id, stageId: p.stages[0] ? p.stages[0].id : null });
     const curP = D.projects.find(x => x.id === s.projectId);
     const sec = s.view === 'project' ? (curP && this.isArch(curP) ? 'archive' : 'projects') : s.view === 'meeting' ? 'meetings' : s.view;
-    const navDef = [['projects', 'Projeler', D.projects.filter(p => !this.isArch(p)).length, '#E8641C', '3px'], ['products', 'Ürünler & Takvim', D.products.length, '#F2A516', '50%'], ['ideas', 'Fikir Atlası', D.ideas.length, '#3E9E8F', '50%'], ['meetings', 'Toplantılar', D.meetings.length, '#5B7FC7', '3px'], ['archive', 'Arşiv', D.projects.filter(p => this.isArch(p)).length, '#9E978A', '2px']];
+    const navDef = [['projects', 'Projeler', D.projects.filter(p => !this.isArch(p)).length, '#E8641C', '3px'], ['products', 'Ürünler & Takvim', D.products.length, '#F2A516', '50%'], ['ideas', 'Fikir Atlası', D.ideas.length, '#3E9E8F', '50%'], ['meetings', 'Toplantılar', D.meetings.length, '#5B7FC7', '3px'], ['weekly', 'Haftalık İş Listem', (D.weekly || []).filter(w => sess && w.u === sess.u).length, '#D0678A', '3px'], ['payments', 'Ödemeler', (D.payments || []).length, '#8A74C4', '50%'], ['contracts', 'Sözleşmeler', (D.contracts || []).length, '#6FA35C', '2px'], ['archive', 'Arşiv', D.projects.filter(p => this.isArch(p)).length, '#9E978A', '2px']];
     if (isAdmin) navDef.push(['logs', 'Kayıtlar', (D.log || []).length, '#756F64', '50%']);
     const nav = navDef.map(([k, label, count, dot, shape]) => {
       const on = sec === k;
@@ -1038,6 +1259,81 @@ class Component extends DCLogic {
       out.ideaColors = NOTE.map((c, ci) => ({ bg: c, ring: s.ideaColor === ci ? '#1F1B16' : 'transparent', onClick: () => this.setState({ ideaColor: ci }) }));
     }
 
+
+    out.isWeekly = s.view === 'weekly'; out.isPayments = s.view === 'payments'; out.isContracts = s.view === 'contracts';
+    const chk = done => ({ check: done ? '✓' : '', boxBg: done ? '#2F7446' : 'transparent', boxBorder: done ? '#2F7446' : '#9A9385', color: done ? '#9A9385' : '#1F1B16', deco: done ? 'line-through' : 'none' });
+    const chips = (types, list, cur, key) => ['Tümü', ...types].map(t => { const on = cur === t; return { label: t, count: t === 'Tümü' ? list.length : list.filter(r => r.type === t).length, bg: on ? '#211E1A' : '#FFFFFF', color: on ? '#FAF5EC' : '#1F1B16', border: on ? '#211E1A' : '#ECE2D0', onClick: () => this.setState({ [key]: t }) }; });
+    const colsH = (key, label) => ((D[key] || []).map((c, ci) => ({ name: c.name, can: isAdmin, onName: e => { const v = e.target.value; this.upd(d => { d[key][ci].name = v; }); }, onRemove: () => this.upd(d => { d[key].splice(ci, 1); }, null, label + ' “' + c.name + '” sütununu sildi') })));
+    if (s.view === 'weekly') {
+      const who = (isAdmin && s.weekUser) || me, curMon = monday(ymd(new Date()));
+      const list = (D.weekly || []).filter(w => w.u === who).sort((a, b) => b.start.localeCompare(a.start));
+      out.weekPeople = users.map(u => ({ label: u.name, bg: u.u === who ? '#211E1A' : 'transparent', color: u.u === who ? '#FAF5EC' : '#5E584E', onClick: () => this.setState({ weekUser: u.u }) }));
+      out.weekEmpty = !list.length; out.weekOwner = (users.find(u => u.u === who) || { name: sess ? sess.name : '' }).name;
+      out.weeks = list.map(w => {
+        const a = new Date(w.start + 'T00:00'), b = new Date(a); b.setDate(b.getDate() + 6);
+        const range = a.getMonth() === b.getMonth() ? a.getDate() + ' – ' + b.getDate() + ' ' + MON[b.getMonth()] + ' ' + b.getFullYear() : a.getDate() + ' ' + MON[a.getMonth()] + ' – ' + b.getDate() + ' ' + MON[b.getMonth()] + ' ' + b.getFullYear();
+        const its = w.items || [], dn = its.filter(x => x.done).length;
+        const ed = fn => this.upd(d => { const q = (d.weekly || []).find(z => z.id === w.id); if (q) fn(q); });
+        return { range, start: w.start, isCur: w.start === curMon, pct: its.length ? Math.round(dn / its.length * 100) : 0, stat: dn + ' / ' + its.length + ' iş', can: isAdmin, nextNum: String(its.length + 1).padStart(2, '0'),
+          onStart: e => { const v = e.target.value; if (v) ed(q => { q.start = monday(v); }); },
+          items: its.map((it, ii) => ({ num: String(ii + 1).padStart(2, '0'), text: it.text, can: isAdmin, ...chk(it.done), onToggle: () => ed(q => { q.items[ii].done = !it.done; }), onText: e => { const v = e.target.value; ed(q => { q.items[ii].text = v; }); }, onDelete: () => ed(q => { q.items.splice(ii, 1); }) })),
+          onAdd: e => { if (e.key !== 'Enter') return; const v = e.target.value.trim(); if (!v) return; e.target.value = ''; ed(q => { q.items = q.items || []; q.items.push({ id: uid(), text: v, done: false }); }); },
+          onDelete: () => this.upd(d => { d.weekly = (d.weekly || []).filter(z => z.id !== w.id); }, null, 'Haftalık iş listesinden bir haftayı sildi: ' + range) };
+      });
+      out.addWeek = () => { let st = curMon; if (list.some(w => w.start === st)) { const x = new Date(list[0].start + 'T00:00'); x.setDate(x.getDate() + 7); st = ymd(x); } this.upd(d => { d.weekly = d.weekly || []; d.weekly.push({ id: uid(), u: who, start: st, items: [] }); }, null, 'Haftalık iş listesine yeni hafta açtı'); };
+    }
+    if (s.view === 'payments') {
+      const cols = D.payCols || [], all = D.payments || [], f = s.payFilter || 'Tümü', nowYM = ymd(new Date()).slice(0, 7);
+      const list = all.filter(r => f === 'Tümü' || r.type === f);
+      const edR = (id, fn) => this.upd(d => { const q = (d.payments || []).find(z => z.id === id); if (q) fn(q); });
+      let sT = 0, sP = 0, sM = 0, sL = 0;
+      out.payTypes = PTYPES; out.payFilters = chips(PTYPES, all, f, 'payFilter'); out.payColsH = colsH('payCols', 'Ödemelerden');
+      out.payGrid = 'minmax(180px,1.3fr) minmax(150px,1fr) 150px 120px 80px 140px minmax(230px,1.6fr) 130px minmax(150px,1fr)' + cols.map(() => ' minmax(140px,1fr)').join('') + ' 44px';
+      out.payMin = (1370 + cols.length * 140) + 'px'; out.payEmpty = !list.length;
+      out.payRows = list.map(r => {
+        const n = Math.max(1, parseInt(r.count) || 1), tot = Number(r.total) || 0, per = tot / n, paid = r.paid || [];
+        const pc = paid.slice(0, n).filter(Boolean).length; sT += tot; sP += per * pc;
+        const set = k => e => { const v = e.target.value; edR(r.id, q => { q[k] = v; }); };
+        const inst = Array.from({ length: n }, (_, i) => {
+          const ym = r.start ? addM(r.start, i) : '', ok = !!paid[i], late = !ok && !!ym && ym < nowYM, cur = ym === nowYM;
+          if (cur && !ok) sM += per; if (late) sL += per;
+          return { label: ym ? MON[Number(ym.slice(5)) - 1] + ' ’' + ym.slice(2, 4) : (i + 1) + '. taksit', mark: ok ? '✓ ' : '', title: (i + 1) + '. taksit · ' + money(per) + (ok ? ' · ödendi' : late ? ' · gecikti' : ''), bg: ok ? '#DDEEDF' : late ? '#FBE3D6' : cur ? '#FFF1C9' : '#F4EEE3', color: ok ? '#2F7446' : late ? '#B2431D' : '#5E584E', border: cur && !ok ? '#C78F00' : 'transparent',
+            onClick: () => edR(r.id, q => { q.paid = q.paid || []; q.paid[i] = !ok; }) };
+        });
+        return { product: r.product, person: r.person, type: r.type, total: r.total, count: r.count, start: r.start, note: r.note, can: isAdmin, inst,
+          remain: pc >= n ? 'Bitti' : money(tot - per * pc), remainColor: pc >= n ? '#2F7446' : '#1F1B16', sub: pc + '/' + n + ' taksit · ' + money(per),
+          onProduct: set('product'), onPerson: set('person'), onType: set('type'), onTotal: set('total'), onCount: set('count'), onStart: set('start'), onNote: set('note'),
+          extra: cols.map(c => ({ value: (r.extra || {})[c.id] || '', onChange: e => { const v = e.target.value; edR(r.id, q => { q.extra = q.extra || {}; q.extra[c.id] = v; }); } })),
+          onDelete: () => this.upd(d => { d.payments = (d.payments || []).filter(z => z.id !== r.id); }, null, 'Ödemelerden kaydı sildi: ' + (r.product || '') + ' / ' + (r.person || '')) };
+      });
+      out.payStats = [['Toplam', money(sT), '#1F1B16'], ['Ödenen', money(sP), '#2F7446'], ['Kalan', money(sT - sP), '#1F1B16'], ['Bu ay ödenecek', money(sM), '#C78F00'], ['Gecikmiş', money(sL), sL ? '#B2431D' : '#9E978A']].map(([label, value, color]) => ({ label, value, color }));
+      out.addPayCol = () => this.upd(d => { d.payCols = d.payCols || []; d.payCols.push({ id: uid(), name: 'Yeni sütun' }); }, null, 'Ödemelere yeni sütun ekledi');
+      out.addPayment = () => this.upd(d => { d.payments = d.payments || []; d.payments.unshift({ id: uid(), product: '', person: '', type: f !== 'Tümü' ? f : PTYPES[0], total: 0, count: 1, start: nowYM, paid: [], note: '', extra: {} }); }, null, 'Ödemelere yeni kayıt ekledi');
+    }
+    if (s.view === 'contracts') {
+      const cols = D.conCols || [], all = D.contracts || [], f = s.conFilter || 'Tümü', t0 = new Date(ymd(new Date()) + 'T00:00');
+      const list = all.filter(r => f === 'Tümü' || r.type === f);
+      const edR = (id, fn) => this.upd(d => { const q = (d.contracts || []).find(z => z.id === id); if (q) fn(q); });
+      const days = r => r.end ? Math.round((new Date(r.end + 'T00:00') - t0) / 864e5) : null;
+      out.conTypes = CTYPES; out.conFilters = chips(CTYPES, all, f, 'conFilter'); out.conColsH = colsH('conCols', 'Sözleşmelerden');
+      out.conGrid = 'minmax(170px,1.2fr) 140px minmax(160px,1.1fr) 180px 140px 140px 130px 120px 90px minmax(160px,1fr) minmax(150px,1fr)' + cols.map(() => ' minmax(140px,1fr)').join('') + ' 44px';
+      out.conMin = (1640 + cols.length * 140) + 'px'; out.conEmpty = !list.length;
+      out.conRows = list.map(r => {
+        const dd = days(r), set = k => e => { const v = e.target.value; edR(r.id, q => { q[k] = v; }); };
+        const [remain, remBg, remColor] = dd === null ? ['Bitiş yok', '#F4EEE3', '#756F64'] : dd < 0 ? ['Süresi doldu', '#FBE3D6', '#B2431D'] : dd === 0 ? ['Bugün bitiyor', '#FBE3D6', '#B2431D'] : dd <= 60 ? [dd + ' gün kaldı', '#FFF1C9', '#8A6400'] : [dd + ' gün kaldı', '#DDEEDF', '#2F7446'];
+        const setStat = v => () => { if (!!r.done === v) return; edR(r.id, q => { q.done = v; }); this.logAct('“' + (r.person || '') + '” sözleşmesini “' + (v ? 'Yapıldı' : 'Yapılmadı') + '” yaptı'); };
+        return { person: r.person, type: r.type, product: r.product, start: r.start, end: r.end, fee: r.fee, royalty: r.royalty, link: r.link || '', hasLink: /^https?:\/\//.test(r.link || ''), note: r.note, can: isAdmin, remain, remBg, remColor,
+          doneBg: r.done ? '#2F7446' : 'transparent', doneColor: r.done ? '#FFFFFF' : '#756F64', todoBg: !r.done ? '#FFFFFF' : 'transparent', todoColor: !r.done ? '#B2431D' : '#756F64',
+          setDone: setStat(true), setTodo: setStat(false),
+          onPerson: set('person'), onType: set('type'), onProduct: set('product'), onStart: set('start'), onEnd: set('end'), onFee: set('fee'), onRoyalty: set('royalty'), onLink: set('link'), onNote: set('note'),
+          extra: cols.map(c => ({ value: (r.extra || {})[c.id] || '', onChange: e => { const v = e.target.value; edR(r.id, q => { q.extra = q.extra || {}; q.extra[c.id] = v; }); } })),
+          onDelete: () => this.upd(d => { d.contracts = (d.contracts || []).filter(z => z.id !== r.id); }, null, 'Sözleşmelerden kaydı sildi: ' + (r.person || '')) };
+      });
+      const soon = all.filter(r => { const x = days(r); return x !== null && x >= 0 && x <= 60; }).length, over = all.filter(r => { const x = days(r); return x !== null && x < 0; }).length;
+      out.conStats = [['Toplam', all.length, '#1F1B16'], ['Yapıldı', all.filter(r => r.done).length, '#2F7446'], ['Yapılmadı', all.filter(r => !r.done).length, '#B2431D'], ['60 gün içinde biten', soon, soon ? '#C78F00' : '#9E978A'], ['Süresi dolan', over, over ? '#B2431D' : '#9E978A']].map(([label, value, color]) => ({ label, value, color }));
+      out.addConCol = () => this.upd(d => { d.conCols = d.conCols || []; d.conCols.push({ id: uid(), name: 'Yeni sütun' }); }, null, 'Sözleşmelere yeni sütun ekledi');
+      out.addContract = () => this.upd(d => { d.contracts = d.contracts || []; d.contracts.unshift({ id: uid(), person: '', type: f !== 'Tümü' ? f : CTYPES[0], product: '', done: false, start: ymd(new Date()), end: '', fee: '', royalty: '', link: '', note: '', extra: {} }); }, null, 'Sözleşmelere yeni kayıt ekledi');
+    }
     const mStat = m => { const a = m.decisions.length, d = m.decisions.filter(x => x.done).length; return { a, d, pct: a ? Math.round(d / a * 100) : 0 }; };
     if (s.view === 'meetings') {
       out.meetings = [...D.meetings].sort((a, b) => b.date.localeCompare(a.date)).map((m, mi2) => {
