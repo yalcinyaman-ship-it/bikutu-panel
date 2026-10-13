@@ -426,7 +426,10 @@ input:focus,textarea:focus{outline:none}
 </sc-if>
 
 <sc-if value="{{ isMeeting }}" hint-placeholder-val="{{ false }}">
-  <button onClick="{{ goMeetings }}" style="border:none;background:transparent;cursor:pointer;padding:0;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase" style-hover="color:#E8641C">← Toplantılar</button>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:16px">
+    <button onClick="{{ goMeetings }}" style="border:none;background:transparent;cursor:pointer;padding:0;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#756F64;text-transform:uppercase" style-hover="color:#E8641C">← Toplantılar</button>
+    <button onClick="{{ md.onDelete }}" style="border:1px solid #ECE2D0;background:transparent;cursor:pointer;padding:8px 14px;border-radius:999px;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.12em;color:#B2431D;text-transform:uppercase" style-hover="background:#FBE3D6">Toplantıyı sil</button>
+  </div>
   <div style="max-width:920px;margin:22px auto 0;position:relative">
     <div style="position:absolute;inset:10px -10px -10px 10px;background:#EEE6D8;border-radius:6px"></div>
     <div style="position:relative;background-color:#FFFEFA;background-image:linear-gradient(90deg,transparent 95px,#E7A58F 95px,#E7A58F 96px,transparent 96px),repeating-linear-gradient(180deg,transparent 0,transparent 43px,#E6E0D2 43px,#E6E0D2 44px);background-position:0 0,0 12px;border-radius:6px;box-shadow:0 30px 60px -30px rgba(27,25,21,.35);padding:52px clamp(24px,5vw,64px) 64px 128px;min-height:760px">
@@ -825,7 +828,7 @@ input:focus,textarea:focus{outline:none}
           <span style="font-family:'Geist Mono',monospace;font-size:13px">Kullanıcı adı: {{ nuDone.u }} · Şifre: {{ nuDone.p }}</span>
         </div>
       </sc-if>
-      <span style="font-size:12px;color:#756F64;line-height:1.5">Ekip üyeleri her şeyi görebilir, ekleyip düzenleyebilir; hiçbir şeyi silemez. Silme yalnızca admin kilidi açıkken yapılır.</span>
+      <span style="font-size:12px;color:#756F64;line-height:1.5">Ekip üyeleri her şeyi görebilir, ekleyip düzenleyebilir. Toplantıları ve Fikir Atlası notlarını herkes silebilir; diğer silmeler yalnızca admin kilidi açıkken yapılır.</span>
     </div>
   </div>
 </sc-if>
@@ -1240,17 +1243,17 @@ class Component extends DCLogic {
         const hsh = String(n.id).split('').reduce((a, c) => a + c.charCodeAt(0), 0);
         const ed = fn => this.upd(d => { const q = d.ideas.find(z => z.id === n.id); if (!q) return; if (q.title === undefined) { q.title = q.text; q.text = ''; } fn(q); });
         const checks = n.checks || [], dn = checks.filter(c => c.done).length, hasList = checks.length > 0 || !!n.list;
-        return { can: isAdmin, title, body: legacy ? '' : (n.text || ''), bg: NOTE[(n.color || 0) % NOTE.length], x: x + 'px', y: y + 'px', z: on ? 999 : (n.z || 1),
+        return { can: true, title, body: legacy ? '' : (n.text || ''), bg: NOTE[(n.color || 0) % NOTE.length], x: x + 'px', y: y + 'px', z: on ? 999 : (n.z || 1),
           rot: on ? '0deg' : rots[hsh % rots.length] + 'deg', shadow: on ? '0 30px 50px -20px rgba(27,25,21,.5)' : '0 1px 0 rgba(0,0,0,.04),0 14px 24px -14px rgba(27,25,21,.35)', tr: on ? 'none' : 'transform .2s,box-shadow .2s', cursor: on ? 'grabbing' : 'grab', date: fmt(n.date),
           onDown: e => this.startDrag(e, n.id, px, py),
           onTitle: e => { const v = e.target.value; ed(q => { q.title = v; }); },
           onBody: e => { const v = e.target.value; ed(q => { q.text = v; }); },
           colors: NOTE.map((c, ci) => ({ bg: c, ring: (n.color || 0) % NOTE.length === ci ? '#1F1B16' : 'rgba(27,25,21,.15)', onClick: () => ed(q => { q.color = ci; }) })),
           hasList, noList: !hasList, listStat: dn + '/' + checks.length, onList: () => ed(q => { q.list = true; }),
-          checks: checks.map((c, ci) => ({ text: c.text, check: c.done ? '✓' : '', boxBg: c.done ? '#2F7446' : 'transparent', boxBorder: c.done ? '#2F7446' : 'rgba(27,25,21,.45)', color: c.done ? 'rgba(27,25,21,.5)' : '#1F1B16', deco: c.done ? 'line-through' : 'none', can: isAdmin,
+          checks: checks.map((c, ci) => ({ text: c.text, check: c.done ? '✓' : '', boxBg: c.done ? '#2F7446' : 'transparent', boxBorder: c.done ? '#2F7446' : 'rgba(27,25,21,.45)', color: c.done ? 'rgba(27,25,21,.5)' : '#1F1B16', deco: c.done ? 'line-through' : 'none', can: true,
             onToggle: () => ed(q => { q.checks[ci].done = !c.done; }), onText: e => { const v = e.target.value; ed(q => { q.checks[ci].text = v; }); }, onDelete: () => ed(q => { q.checks.splice(ci, 1); }) })),
           onAddCheck: e => { if (e.key !== 'Enter') return; const v = e.target.value.trim(); if (!v) return; e.target.value = ''; ed(q => { q.checks = q.checks || []; q.checks.push({ id: uid(), text: v, done: false }); }); },
-          onDelete: () => this.upd(d => { const k = d.ideas.findIndex(z => z.id === n.id); if (k > -1) d.ideas.splice(k, 1); }, null, 'Fikir Atlası’ndan not kaldırdı: ' + title) };
+          onDelete: () => confirm('“' + (title || 'Bu not') + '” silinsin mi?') && this.upd(d => { const k = d.ideas.findIndex(z => z.id === n.id); if (k > -1) d.ideas.splice(k, 1); }, null, 'Fikir Atlası’ndan not kaldırdı: ' + title) };
       });
       out.boardW = Math.max(1100, maxX + 300) + 'px'; out.boardH = Math.max(680, maxY + 440) + 'px';
       out.newIdea = s.newIdea; out.onNewIdea = e => this.setState({ newIdea: e.target.value });
@@ -1346,8 +1349,9 @@ class Component extends DCLogic {
     if (s.view === 'meeting' && m) {
       const mi = D.meetings.indexOf(m), r = mStat(m);
       const set = k => e => { const v = e.target.value; this.upd(d => { d.meetings[mi][k] = v; }); };
-      out.md = { date: m.date, title: m.title, people: m.people, pct: r.pct, stat: r.d + ' / ' + r.a + ' bitti', onDate: set('date'), onTitle: set('title'), onPeople: set('people') };
-      out.decisions = m.decisions.map((d, di) => ({ can: isAdmin, num: String(di + 1).padStart(2, '0'), text: d.text, done: d.done, check: d.done ? '✓' : '', boxBg: d.done ? '#2F7446' : 'transparent', boxBorder: d.done ? '#2F7446' : '#9A9385', color: d.done ? '#9A9385' : '#1F1B16', deco: d.done ? 'line-through' : 'none',
+      out.md = { date: m.date, title: m.title, people: m.people, pct: r.pct, stat: r.d + ' / ' + r.a + ' bitti', onDate: set('date'), onTitle: set('title'), onPeople: set('people'),
+        onDelete: () => confirm('“' + m.title + '” toplantısı silinsin mi? Bu geri alınamaz.') && this.upd(d => { d.meetings = d.meetings.filter(z => z.id !== m.id); }, { view: 'meetings', meetingId: null }, 'Toplantıyı sildi: ' + m.title) };
+      out.decisions = m.decisions.map((d, di) => ({ can: true, num: String(di + 1).padStart(2, '0'), text: d.text, done: d.done, check: d.done ? '✓' : '', boxBg: d.done ? '#2F7446' : 'transparent', boxBorder: d.done ? '#2F7446' : '#9A9385', color: d.done ? '#9A9385' : '#1F1B16', deco: d.done ? 'line-through' : 'none',
         onToggle: () => this.upd(x => { x.meetings[mi].decisions[di].done = !d.done; }, null, (d.done ? 'Kararı yeniden açtı: ' : 'Kararı bitirdi: ') + d.text), onText: e => { const v = e.target.value; this.upd(x => { x.meetings[mi].decisions[di].text = v; }); }, onDelete: () => this.upd(x => x.meetings[mi].decisions.splice(di, 1), null, 'Toplantıdan kararı sildi: ' + d.text) }));
       out.nextNum = String(m.decisions.length + 1).padStart(2, '0');
       out.newDecision = s.newDecision; out.onNewDecision = e => this.setState({ newDecision: e.target.value });
