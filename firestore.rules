@@ -6,10 +6,9 @@ service cloud.firestore {
     function isAdmin() { return member() && get(/databases/$(db)/documents/users/$(request.auth.uid)).data.admin == true; }
 
     // Kullanıcılar: herkes listeyi görür, yalnızca admin ekler/değiştirir/kaldırır.
-    // İlk kurulum: yaman hesabı kendi admin kaydını bir kez oluşturabilir.
     match /users/{uid} {
       allow read: if member() || (signedIn() && request.auth.uid == uid);
-      allow create: if isAdmin() || (signedIn() && request.auth.uid == uid && request.auth.token.email == 'yaman@bikutuoyun.panel');
+      allow create: if isAdmin();
       allow update, delete: if isAdmin();
     }
 

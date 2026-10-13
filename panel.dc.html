@@ -1064,15 +1064,7 @@ class Component extends DCLogic {
     if (!u || !p) return this.setState({ loginErr: 'Kullanıcı adı ve şifre gir.' });
     this.setState({ loginBusy: true, loginErr: '' });
     try {
-      let cred;
-      try { cred = await Au.signInWithEmailAndPassword(auth, email(u), p); }
-      catch (e) {
-        if (u !== 'yaman' || p !== 'yaman.1905') throw e;
-        this.fb.boot = true;
-        try { cred = await Au.createUserWithEmailAndPassword(auth, email(u), p); } catch (e2) { this.fb.boot = false; throw e; }
-        await F.setDoc(F.doc(db, 'users', cred.user.uid), { username: 'yaman', name: 'Yaman', admin: true });
-        this.fb.boot = false;
-      }
+      const cred = await Au.signInWithEmailAndPassword(auth, email(u), p);
       const sess = await this.enter(cred.user);
       if (!sess) return;
       if (asAdmin && !sess.admin) this.setState({ loginErr: 'Bu hesabın admin yetkisi yok.' });
@@ -1156,7 +1148,7 @@ class Component extends DCLogic {
       lockTitle: isAdmin ? 'Admin kilidini kapat' : 'Admin girişi', lockBg: isAdmin ? '#F28A1E' : 'transparent', lockColor: isAdmin ? '#211E1A' : '#B9B2A4',
       onLock: () => { if (isAdmin) { if (sess.acctAdmin) this.logout(); else this.setSession({ ...sess, admin: false }); } else this.setState({ adminModal: true, loginU: '', loginP: '', loginErr: '' }); },
       settingsOpen: s.settingsOpen && isAdmin, openSettings: () => this.setState({ settingsOpen: true, nuErr: '', nuDone: null }), closeSettings: () => this.setState({ settingsOpen: false }),
-      usersList: users.map((u, ui) => ({ name: u.name, u: u.u, ini: ini(u.name), bg: u.admin ? '#F28A1E' : '#F1EADD', role: u.admin ? 'Admin' : 'Ekip', roleBg: u.admin ? '#FBE3D6' : '#ECE7DC', roleColor: u.admin ? '#B2431D' : '#5E584E', can: isAdmin && u.u !== 'yaman', onDelete: () => { if (this.fb) { const { F, db } = this.fb; F.deleteDoc(F.doc(db, 'users', u.uid)).then(() => this.logAct('Kullanıcıyı kaldırdı: ' + u.name)); return; } this.upd(d => { d.users.splice(ui, 1); }, null, 'Kullanıcıyı kaldırdı: ' + u.name); } })),
+      usersList: users.map((u, ui) => ({ name: u.name, u: u.u, ini: ini(u.name), bg: u.admin ? '#F28A1E' : '#F1EADD', role: u.admin ? 'Admin' : 'Ekip', roleBg: u.admin ? '#FBE3D6' : '#ECE7DC', roleColor: u.admin ? '#B2431D' : '#5E584E', can: isAdmin && u.u !== sess.u, onDelete: () => { if (this.fb) { const { F, db } = this.fb; F.deleteDoc(F.doc(db, 'users', u.uid)).then(() => this.logAct('Kullanıcıyı kaldırdı: ' + u.name)); return; } this.upd(d => { d.users.splice(ui, 1); }, null, 'Kullanıcıyı kaldırdı: ' + u.name); } })),
       nuName: s.nuName, nuU: s.nuU, nuP: s.nuP, nuErr: s.nuErr,
       onNuName: e => this.setState({ nuName: e.target.value, nuErr: '' }), onNuU: e => this.setState({ nuU: e.target.value, nuErr: '' }), onNuP: e => this.setState({ nuP: e.target.value, nuErr: '' }),
       nuRoles: [[false, 'Ekip'], [true, 'Admin']].map(([v, label]) => ({ label, bg: s.nuAdmin === v ? '#FFFFFF' : 'transparent', color: s.nuAdmin === v ? '#211E1A' : '#756F64', onClick: () => this.setState({ nuAdmin: v }) })),
